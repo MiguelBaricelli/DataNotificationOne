@@ -1,5 +1,5 @@
-﻿using DataNotificationOne.Application;
-using DataNotificationOne.Application.Dtos;
+﻿using DataNotificationOne.Application.Dtos;
+using DataNotificationOne.Application.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DataNotificationOne.Controllers.V1

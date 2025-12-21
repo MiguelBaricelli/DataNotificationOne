@@ -1,5 +1,5 @@
-﻿using DataNotificationOne.Infrastructure.ExternalApis;
-using DataNotificationOne.Infrastructure.Interfaces;
+﻿using DataNotificationOne.Domain.Interfaces.Infra;
+using DataNotificationOne.Infrastructure.ExternalApis;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace DataNotificationOne.Infrastructure.DependencyInjection
@@ -11,7 +11,7 @@ namespace DataNotificationOne.Infrastructure.DependencyInjection
             this IServiceCollection services)
         {
             
-            services.AddScoped<IAlphaVantageClient, AlphaVantageClient>();
+            services.AddScoped<IAlphaVantageDailyConsumer, ExternalApis.AlphaVantageDailyConsumer>();
 
 
             return services;

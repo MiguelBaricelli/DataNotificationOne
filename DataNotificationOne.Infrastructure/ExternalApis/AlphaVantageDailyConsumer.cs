@@ -1,23 +1,24 @@
 ﻿using System.Globalization;
 using System.Text.Json;
+using DataNotificationOne.Domain.Interfaces.Infra;
+using DataNotificationOne.Domain.Models;
 using DataNotificationOne.Domain.Services;
-using DataNotificationOne.Infrastructure.Interfaces;
 using Microsoft.Extensions.Configuration;
 namespace DataNotificationOne.Infrastructure.ExternalApis
 {
-    public class AlphaVantageClient : IAlphaVantageClient
+    public class AlphaVantageDailyConsumer : IAlphaVantageDailyConsumer
     {
         private readonly HttpClient _httpClient;
         private readonly string _apiKey;
 
-        public AlphaVantageClient(HttpClient httpClient, IConfiguration configuration)
+        public AlphaVantageDailyConsumer(HttpClient httpClient, IConfiguration configuration)
         {
             _httpClient = httpClient;
             _apiKey = configuration["ApiKeys:KeyApiFinance"]
                 ?? throw new Exception("API Key Alpha Vantage não configurada");
         }
 
-        public async Task<FinanceDataModel> GetFinanceDataAsync(string symbol)
+        public async Task<FinanceDataModel> GetTimeSeriesDailyAsync(string symbol)
         {
             var url =
                 $"https://www.alphavantage.co/query" +

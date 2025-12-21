@@ -9,6 +9,7 @@ namespace DataNotificationOne.Domain.Services
 {
     public class AlphaVantageDailyDto
     {
+
         [JsonPropertyName("1. open")]
         public string Open { get; set; }
 

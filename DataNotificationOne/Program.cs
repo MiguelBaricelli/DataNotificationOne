@@ -1,4 +1,4 @@
-using DataNotificationOne.Application;
+using DataNotificationOne.Application.Services;
 using DataNotificationOne.Infrastructure.DependencyInjection;
 using DataNotificationOne.Infrastructure.ExternalApis;
 using DataNotificationOne.Infrastructure.Interfaces;
