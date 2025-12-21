@@ -6,4 +6,9 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <Compile Remove="Interfaces\IAlphaVantageClient.cs" />
+    <Compile Remove="Models\WeeklyTimeSeriesResponseModel.cs" />
+  </ItemGroup>
+
 </Project>

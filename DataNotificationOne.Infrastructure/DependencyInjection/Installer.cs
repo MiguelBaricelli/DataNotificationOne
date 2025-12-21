@@ -11,7 +11,8 @@ namespace DataNotificationOne.Infrastructure.DependencyInjection
             this IServiceCollection services)
         {
             
-            services.AddScoped<IAlphaVantageDailyConsumer, ExternalApis.AlphaVantageDailyConsumer>();
+            services.AddScoped<IAlphaVantageDailyConsumer, AlphaVantageDailyConsumer>();
+            services.AddScoped<IAlphaVantageWeeklyConsumer, AlphaVantageWeeklyConsumer>();
 
 
             return services;

@@ -1,6 +1,9 @@
-﻿using DataNotificationOne.Application.Dtos;
+﻿using DataNotificationOne.Application;
+using DataNotificationOne.Application.Dtos;
 using DataNotificationOne.Application.Services;
+using DataNotificationOne.Domain.Models;
 using Microsoft.AspNetCore.Mvc;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace DataNotificationOne.Controllers.V1
 {
@@ -11,10 +14,12 @@ namespace DataNotificationOne.Controllers.V1
     {
 
         private readonly GetFinanceSummaryVarianceService _dataFinanceService;
+        private readonly GetWeeklyDataForConsultService _getWeeklyDataForConsultService;
 
-        public FinanceDataController(GetFinanceSummaryVarianceService dataFinanceService)
+        public FinanceDataController(GetFinanceSummaryVarianceService dataFinanceService, GetWeeklyDataForConsultService getWeeklyDataForConsultService)
         {
             _dataFinanceService = dataFinanceService;
+            _getWeeklyDataForConsultService = getWeeklyDataForConsultService;
         }
 
         [HttpGet("PegarVarianciaDeAtivo/{ativo}")]
@@ -41,6 +46,66 @@ namespace DataNotificationOne.Controllers.V1
             catch (Exception ex)
             {
                 throw new Exception("Erro ao buscar os dados. {ex}", ex);
+            }
+        }
+
+
+        [HttpGet("PegarDadosDaSemana/{ativo}")]
+        public async Task<ActionResult<FinanceDataModel>> GetAllWeeklyDataController(string ativo)
+        {
+
+            try
+            {
+                if (string.IsNullOrWhiteSpace(ativo))
+                {
+                    return BadRequest("Ativo");
+                }
+
+                var data = await _getWeeklyDataForConsultService.GetWeeklyDataAsync(ativo);
+
+                if (data == null)
+                {
+                    return NotFound("Nenhum dado foi retornado do serviço");
+                }
+
+                return Ok(data);
+
+            } catch(Exception ex)
+            {
+                throw new Exception("Erro inesperado", ex);
+            }        
+        }
+
+        [HttpGet("PegarDadosDaSemana/{ativo}/{data}")]
+        public async Task<ActionResult<FinanceDataModel>> GetAllWeeklyDataController(string ativo, DateTime date)
+        {
+
+            try
+            {
+                if (string.IsNullOrWhiteSpace(ativo))
+                {
+                    return BadRequest("Ativo");
+                }
+
+                if (date.DayOfWeek == DayOfWeek.Saturday ||
+                    date.DayOfWeek == DayOfWeek.Sunday)
+                {
+                    return BadRequest("Data deve ser um dia útil.");
+                }
+
+                var data = await _getWeeklyDataForConsultService.GetDataByWeekly(ativo, date);
+
+                if (data == null)
+                {
+                    return NotFound("Nenhum dado foi retornado do serviço");
+                }
+
+                return Ok(data);
+
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Erro inesperado", ex);
             }
         }
     }

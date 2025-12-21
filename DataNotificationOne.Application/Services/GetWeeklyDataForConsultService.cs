@@ -1,21 +1,16 @@
-﻿using DataNotificationOne.Application.Dtos;
+﻿using DataNotificationOne.Application.Interfaces;
 using DataNotificationOne.Domain.Interfaces.Infra;
 using DataNotificationOne.Domain.Models;
 using DataNotificationOne.Domain.Services;
-using System;
-using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DataNotificationOne.Application.Services
 {
-    public class GetWeeklyDataForConsultService
+    public class GetWeeklyDataForConsultService : IGetWeeklyDataForConsultService
     {
 
-        private HttpClient _httpClient;
-        private IAlphaVantageWeeklyConsumer _consumer;
+        private readonly HttpClient _httpClient;
+        private readonly IAlphaVantageWeeklyConsumer _consumer;
 
         public GetWeeklyDataForConsultService(HttpClient httpClient, IAlphaVantageWeeklyConsumer consumer)
         {
@@ -39,6 +34,7 @@ namespace DataNotificationOne.Application.Services
 
             return new FinanceDataModel
             {
+                WeekDate = request.WeekDate,
                 Open = request.Open,
                 Close = request.Close,
                 Low = request.Low,
@@ -56,20 +52,29 @@ namespace DataNotificationOne.Application.Services
             {
                 throw new Exception("Não foi possível acessar os dados");
             }
+
             string dateKey = date.ToString("yyyy-MM-dd");
 
-            //Preciso ajustar os contratos para que pare de dar erro na hora de filtrar a data do cliente.
-            //Responsabilidade precisa ficar no service e infra só me passar os dados crus.
+            // Monta o DTO com dados vindos da infra
+            var dailyDto = new AlphaVantageDailyDto
+            {
+                Open = request.Open.ToString(CultureInfo.InvariantCulture),
+                High = request.High.ToString(CultureInfo.InvariantCulture),
+                Low = request.Low.ToString(CultureInfo.InvariantCulture),
+                Close = request.Close.ToString(CultureInfo.InvariantCulture),
+                Volume = request.Volume.ToString()
+            };
 
-            //Ajustar essa classe e todos o restante  do método
+            var lista = new Dictionary<string, AlphaVantageDailyDto>();
 
-            // Intervalo da semana do cliente (segunda → domingo)
-            var startOfWeek = date.AddDays(
-                -(int)date.DayOfWeek + (int)DayOfWeek.Monday);
+            foreach (var n in lista) {
+                lista.Add(dateKey, dailyDto);
+            }
+
 
             return new FinanceDataModel
             {
-                WeekDate = date,
+                WeekDate = DateTime.Parse(dateKey),
                 Open = request.Open,
                 Close = request.Close,
                 Low = request.Low,
@@ -79,7 +84,30 @@ namespace DataNotificationOne.Application.Services
             };
         }
 
+        public async Task<List<FinanceDataModel>> GetAllDataByWeekly(string symbol)
+        {
+            var request = await _consumer.GetWeeklyDataAsync(symbol);
 
+            if (request == null)
+                throw new Exception("Não foi possível acessar os dados");
+
+            // 🔹 Últimas 10 semanas
+            var result = request
+                .OrderByDescending(x => x.WeekDate) // mais recente primeiro
+                .Take(10)
+                .Select(x => new FinanceDataModel
+                {
+                    WeekDate = x.WeekDate,
+                    Open = x.Open,
+                    High = x.High,
+                    Low = x.Low,
+                    Close = x.Close,
+                    Volume = x.Volume
+                })
+                .ToList();
+
+            return result;
+        }
 
     }
 }

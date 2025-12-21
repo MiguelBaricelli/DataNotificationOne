@@ -61,7 +61,7 @@ namespace DataNotificationOne.Infrastructure.ExternalApis
                 PropertyNameCaseInsensitive = true
             };
 
-            var data = JsonSerializer.Deserialize<AlphaVantageResponseDto>(json, options)
+            var data = JsonSerializer.Deserialize<WeeklyTimeSeriesModel>(json, options)
                 ?? throw new Exception("Resposta inválida da Alpha Vantage");
 
             if (data == null)
@@ -71,20 +71,24 @@ namespace DataNotificationOne.Infrastructure.ExternalApis
             }
 
             //Semana mais recente
-            var recentWeekly = data.TimeSeries
-             .OrderByDescending(x => x.Key)
-             .First();
+            var recentWeekly = data.WeeklyTimeSeries
+             .OrderByDescending(x => x.Key).Take(50).Select(x => new FinanceDataModel
+             {
+                 WeekDate = DateTime.Parse(x.Key),
+                 Open = decimal.Parse(x.Value.Open, CultureInfo.InvariantCulture),
+                 High = decimal.Parse(x.Value.High, CultureInfo.InvariantCulture),
+                 Low = decimal.Parse(x.Value.Low, CultureInfo.InvariantCulture),
+                 Close = decimal.Parse(x.Value.Close, CultureInfo.InvariantCulture),
+                 Volume = long.Parse(x.Value.Volume, CultureInfo.InvariantCulture)
+             }).ToList();
 
-            return new FinanceDataModel
-            {
-                WeekDate = DateTime.Parse(recentWeekly.Key),
-                Open = decimal.Parse(recentWeekly.Value.Open, CultureInfo.InvariantCulture),
-                High = decimal.Parse(recentWeekly.Value.High, CultureInfo.InvariantCulture),
-                Low = decimal.Parse(recentWeekly.Value.Low, CultureInfo.InvariantCulture),
-                Close = decimal.Parse(recentWeekly.Value.Close, CultureInfo.InvariantCulture),
-                Volume = long.Parse(recentWeekly.Value.Volume, CultureInfo.InvariantCulture)
-            };
+
+            return recentWeekly;
         }
 
+
+
     }
+
+}
 }
