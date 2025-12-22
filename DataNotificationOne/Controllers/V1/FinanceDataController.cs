@@ -27,7 +27,7 @@ namespace DataNotificationOne.Controllers.V1
         /// </summary>
         /// <param name="ativo">Símbolo do ativo (ex.: MSFT, AAPL, IBM)</param>
         /// <returns>Objeto FinanceSummaryDto com variância e status do ativo</returns>
-        [HttpGet("PegarVarianciaDeAtivo/{ativo}")]
+        [HttpGet("GetVariationAsset/{ativo}")]
         [ProducesResponseType(typeof(FinanceSummaryDto), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
