@@ -2,7 +2,6 @@
 using DataNotificationOne.Domain.Interfaces.Infra;
 using DataNotificationOne.Domain.Models;
 using DataNotificationOne.Domain.Services;
-using System.Globalization;
 
 namespace DataNotificationOne.Application.Services
 {
@@ -18,7 +17,8 @@ namespace DataNotificationOne.Application.Services
             _consumer = consumer;
         }
 
-        public async Task<FinanceDataModel> GetWeeklyDataAsync(string symbol)
+        // Pega os dados semanais completos
+        public async Task<WeeklyTimeSeriesModel> GetWeeklyDataAsync(string symbol)
         {
 
             if (string.IsNullOrEmpty(symbol))
@@ -32,81 +32,52 @@ namespace DataNotificationOne.Application.Services
                 throw new ArgumentNullException("Objeto não encontrado");
             }
 
-            return new FinanceDataModel
-            {
-                WeekDate = request.WeekDate,
-                Open = request.Open,
-                Close = request.Close,
-                Low = request.Low,
-                High = request.High,
-                Volume = request.Volume,
-
-            };
+            return request;
         }
 
-        public async Task<FinanceDataModel> GetDataByWeekly(string symbol, DateTime date)
+        // Pega os dados semanais por data específica
+        public async Task<WeeklyTimeSeriesModel> GetDataByWeekly(string symbol, DateTime date)
         {
+            if (string.IsNullOrEmpty(symbol))
+                throw new ArgumentNullException(nameof(symbol), "Precisa conter o símbolo");
+
             var request = await _consumer.GetWeeklyDataAsync(symbol);
 
             if (request == null)
-            {
                 throw new Exception("Não foi possível acessar os dados");
-            }
 
             string dateKey = date.ToString("yyyy-MM-dd");
 
-            // Monta o DTO com dados vindos da infra
-            var dailyDto = new AlphaVantageDailyDto
+            if (!request.WeeklyTimeSeries.TryGetValue(dateKey, out var weeklyData))
+                throw new Exception($"Nenhum dado foi encontrado para data {dateKey}");
+
+            // 🔹 Retorna apenas a semana solicitada dentro de um novo objeto
+            return new WeeklyTimeSeriesModel
             {
-                Open = request.Open.ToString(CultureInfo.InvariantCulture),
-                High = request.High.ToString(CultureInfo.InvariantCulture),
-                Low = request.Low.ToString(CultureInfo.InvariantCulture),
-                Close = request.Close.ToString(CultureInfo.InvariantCulture),
-                Volume = request.Volume.ToString()
-            };
-
-            var lista = new Dictionary<string, AlphaVantageDailyDto>();
-
-            foreach (var n in lista) {
-                lista.Add(dateKey, dailyDto);
-            }
-
-
-            return new FinanceDataModel
-            {
-                WeekDate = DateTime.Parse(dateKey),
-                Open = request.Open,
-                Close = request.Close,
-                Low = request.Low,
-                High = request.High,
-                Volume = request.Volume > 0 ? request.Volume : 0,
-
+                WeeklyTimeSeries = new Dictionary<string, AlphaVantageDailyDto>
+        {
+            { dateKey, weeklyData }
+        }
             };
         }
 
-        public async Task<List<FinanceDataModel>> GetAllDataByWeekly(string symbol)
+        // Pega os dados semanais dos últimos 10 períodos (semanas)
+        public async Task<WeeklyTimeSeriesModel> GetLastTenWeeklys(string symbol)
         {
             var request = await _consumer.GetWeeklyDataAsync(symbol);
 
             if (request == null)
                 throw new Exception("Não foi possível acessar os dados");
 
-            // 🔹 Últimas 10 semanas
-            var result = request
-                .OrderByDescending(x => x.WeekDate) // mais recente primeiro
-                .Take(10)
-                .Select(x => new FinanceDataModel
-                {
-                    WeekDate = x.WeekDate,
-                    Open = x.Open,
-                    High = x.High,
-                    Low = x.Low,
-                    Close = x.Close,
-                    Volume = x.Volume
-                })
-                .ToList();
+            var result = request.WeeklyTimeSeries
+            .OrderByDescending(x => x.Key) // mais recente primeiro
+            .Take(10)
+            .ToDictionary(x => x.Key, x => x.Value);
 
-            return result;
+            return new WeeklyTimeSeriesModel
+            {
+                WeeklyTimeSeries = result
+            };
         }
 
     }

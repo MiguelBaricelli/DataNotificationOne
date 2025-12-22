@@ -5,7 +5,7 @@ using DataNotificationOne.Domain.Interfaces.Infra;
 namespace DataNotificationOne.Application
 {
    
-    public class GetFinanceSummaryVarianceService : IGetFinanceSummaryVarianceAsync
+    public class GetFinanceSummaryVarianceService : IGetFinanceSummaryVarianceService
     {
         private readonly IAlphaVantageDailyConsumer _client;
        

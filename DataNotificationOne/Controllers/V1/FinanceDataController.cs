@@ -3,7 +3,6 @@ using DataNotificationOne.Application.Dtos;
 using DataNotificationOne.Application.Services;
 using DataNotificationOne.Domain.Models;
 using Microsoft.AspNetCore.Mvc;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace DataNotificationOne.Controllers.V1
 {
@@ -34,8 +33,8 @@ namespace DataNotificationOne.Controllers.V1
                 }
 
                 var summary = await _dataFinanceService.GetFinanceSummaryVarianceAsync(ativo);
-               
-                if(summary == null)
+
+                if (summary == null)
                 {
                     Console.WriteLine("Erro, dados não foram encontrados");
                     return NotFound("Dados não encontrados");
@@ -49,8 +48,8 @@ namespace DataNotificationOne.Controllers.V1
             }
         }
 
-
-        [HttpGet("PegarDadosDaSemana/{ativo}")]
+        // Pegar os dados semanais dos últimos 10 dias úteis
+        [HttpGet("Last10Days/{ativo}")]
         public async Task<ActionResult<FinanceDataModel>> GetAllWeeklyDataController(string ativo)
         {
 
@@ -61,7 +60,7 @@ namespace DataNotificationOne.Controllers.V1
                     return BadRequest("Ativo");
                 }
 
-                var data = await _getWeeklyDataForConsultService.GetWeeklyDataAsync(ativo);
+                var data = await _getWeeklyDataForConsultService.GetLastTenWeeklys(ativo);
 
                 if (data == null)
                 {
@@ -70,13 +69,14 @@ namespace DataNotificationOne.Controllers.V1
 
                 return Ok(data);
 
-            } catch(Exception ex)
+            }
+            catch (Exception ex)
             {
                 throw new Exception("Erro inesperado", ex);
-            }        
+            }
         }
 
-        [HttpGet("PegarDadosDaSemana/{ativo}/{data}")]
+        [HttpGet("DataSpecificWeekly/{ativo}/{data}")]
         public async Task<ActionResult<FinanceDataModel>> GetAllWeeklyDataController(string ativo, DateTime date)
         {
 

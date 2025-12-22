@@ -20,7 +20,7 @@ namespace DataNotificationOne.Infrastructure.ExternalApis
                ?? throw new Exception("API Key Alpha Vantage não configurada");
         }
 
-        public async Task<FinanceDataModel> GetWeeklyDataAsync(string symbol)
+        public async Task<WeeklyTimeSeriesModel> GetWeeklyDataAsync(string symbol)
         {
             var url =
                 $"https://www.alphavantage.co/query" +
@@ -69,21 +69,8 @@ namespace DataNotificationOne.Infrastructure.ExternalApis
                 Console.WriteLine("Dados do json vierao nulos");
                 throw new Exception("Dados do json vierao nulos");
             }
-
-            //Semana mais recente
-            var recentWeekly = data.WeeklyTimeSeries
-             .OrderByDescending(x => x.Key).Take(50).Select(x => new FinanceDataModel
-             {
-                 WeekDate = DateTime.Parse(x.Key),
-                 Open = decimal.Parse(x.Value.Open, CultureInfo.InvariantCulture),
-                 High = decimal.Parse(x.Value.High, CultureInfo.InvariantCulture),
-                 Low = decimal.Parse(x.Value.Low, CultureInfo.InvariantCulture),
-                 Close = decimal.Parse(x.Value.Close, CultureInfo.InvariantCulture),
-                 Volume = long.Parse(x.Value.Volume, CultureInfo.InvariantCulture)
-             }).ToList();
-
-
-            return recentWeekly;
+                 
+            return data;
         }
 
 
@@ -91,4 +78,4 @@ namespace DataNotificationOne.Infrastructure.ExternalApis
     }
 
 }
-}
+
