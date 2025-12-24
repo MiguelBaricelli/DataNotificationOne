@@ -18,6 +18,7 @@ if (string.IsNullOrEmpty(apiKey))
 
 builder.Services.AddScoped<GetFinanceSummaryVarianceService>();
 builder.Services.AddScoped<GetWeeklyDataForConsultService>();
+builder.Services.AddScoped<DataOverviewService>();
 
 
 builder.Services.AddHttpClient();
