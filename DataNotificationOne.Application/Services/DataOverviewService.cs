@@ -19,7 +19,7 @@ namespace DataNotificationOne.Application.Services
             _alphaVantageOverviewConsumer = alphaVantageOverviewConsumer;
         }
 
-        public async Task<OverviewModel> GetAllDataOverviewService(string symbol)
+        public async Task<OverviewModel> GetAllDataOverviewBySymbolServiceAsync(string symbol)
         {
             if (string.IsNullOrWhiteSpace(symbol) )
             {
@@ -43,5 +43,42 @@ namespace DataNotificationOne.Application.Services
 
             return data;
         }
-    }
-}
+
+        public async Task<OverviewModel> GetCompanyOverviewSummaryServiceAsync(string symbol)
+        {
+            if (string.IsNullOrWhiteSpace(symbol))
+            {
+                throw new ArgumentNullException("Ativo obrigatorio");
+            }
+
+            var data = await _alphaVantageOverviewConsumer.GetCompanyOverviewAsync(symbol);
+
+            if (data == null)
+            {
+                throw new Exception("Nenhum dado encontrado para o ativo informado.");
+            }
+
+            var response = new OverviewModel
+            {
+                Symbol = data.Symbol,
+                AssetType = data.AssetType,
+                Name = data.Name,
+                Description = data.Description,
+                CIK = data.CIK,
+                Currency = data.Currency,
+                Country = data.Country,
+                Sector = data.Sector,
+                Industry = data.Industry,
+                Address = data.Address,
+                OfficialSite = data.OfficialSite,
+                MarketCapitalization = data.MarketCapitalization,   
+            };
+
+            if(response == null)
+            {
+                throw new Exception("Dados não encontrados.");
+            }
+
+            return response;
+        }
+}}
