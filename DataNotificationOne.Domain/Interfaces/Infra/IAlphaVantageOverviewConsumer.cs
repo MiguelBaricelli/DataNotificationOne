@@ -4,6 +4,6 @@ namespace DataNotificationOne.Domain.Interfaces.Infra
 {
     public interface IAlphaVantageOverviewConsumer
     {
-        Task<OverviewModel> GetCompanyOverviewAsync(string symbol);
+        Task<OverviewModel> OverviewConsumer(string symbol);
     }
 }

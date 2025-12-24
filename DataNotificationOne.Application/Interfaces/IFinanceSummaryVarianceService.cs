@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace DataNotificationOne.Application.Interfaces
 {
-    public interface IGetFinanceSummaryVarianceService
+    public interface IFinanceSummaryVarianceService
     {
         Task<FinanceSummaryDto> GetFinanceSummaryVarianceAsync(string ativo);
     }

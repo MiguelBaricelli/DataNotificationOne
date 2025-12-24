@@ -12,11 +12,11 @@ namespace DataNotificationOne.Infrastructure.ExternalApis
         public AlphaVantageOverviewConsumer(HttpClient httpClient, IConfiguration configuration)
         {
             _httpClient = httpClient;
-            _apiKey = configuration["ApiKeys:KeyApiFinance"]
+            _apiKey = configuration["ApiKeys:AlphaVantage"]
                 ?? throw new Exception("API Key Alpha Vantage não configurada");
         }
 
-        public async Task<OverviewModel> GetCompanyOverviewAsync(string symbol)
+        public async Task<OverviewModel> OverviewConsumer(string symbol)
         {
             var url =
                 $"https://www.alphavantage.co/query" +

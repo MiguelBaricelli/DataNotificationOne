@@ -1,10 +1,6 @@
-﻿using DataNotificationOne.Domain.Interfaces.Infra;
+﻿using DataNotificationOne.Application.Dtos;
+using DataNotificationOne.Domain.Interfaces.Infra;
 using DataNotificationOne.Domain.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DataNotificationOne.Application.Services
 {
@@ -14,20 +10,20 @@ namespace DataNotificationOne.Application.Services
         private readonly IAlphaVantageOverviewConsumer _alphaVantageOverviewConsumer;
 
 
-        public DataOverviewService(IAlphaVantageOverviewConsumer alphaVantageOverviewConsumer )
+        public DataOverviewService(IAlphaVantageOverviewConsumer alphaVantageOverviewConsumer)
         {
             _alphaVantageOverviewConsumer = alphaVantageOverviewConsumer;
         }
 
         public async Task<OverviewModel> GetAllDataOverviewBySymbolServiceAsync(string symbol)
         {
-            if (string.IsNullOrWhiteSpace(symbol) )
+            if (string.IsNullOrWhiteSpace(symbol))
             {
                 throw new ArgumentNullException("Ativo obrigatorio");
             }
 
 
-            var data = await _alphaVantageOverviewConsumer.GetCompanyOverviewAsync(symbol);
+            var data = await _alphaVantageOverviewConsumer.OverviewConsumer(symbol);
 
             //Futuramente guardar esses dados em um db de cache para nao ficar consultando a api toda hora
 
@@ -36,7 +32,7 @@ namespace DataNotificationOne.Application.Services
                 throw new Exception("Nenhum dado encontrado para o ativo informado.");
             }
 
-            if(data.Symbol == null)
+            if (data.Symbol == null)
             {
                 throw new Exception("Ativo invalido.");
             }
@@ -44,7 +40,7 @@ namespace DataNotificationOne.Application.Services
             return data;
         }
 
-        public async Task<OverviewModel> GetCompanyOverviewSummaryServiceAsync(string symbol)
+        public async Task<SummaryCompanyOverviewDto> GetCompanyOverviewSummaryServiceAsync(string symbol)
         {
             if (string.IsNullOrWhiteSpace(symbol))
             {
@@ -58,7 +54,7 @@ namespace DataNotificationOne.Application.Services
                 throw new Exception("Nenhum dado encontrado para o ativo informado.");
             }
 
-            var response = new OverviewModel
+            var response = new SummaryCompanyOverviewDto
             {
                 Symbol = data.Symbol,
                 AssetType = data.AssetType,
@@ -71,14 +67,15 @@ namespace DataNotificationOne.Application.Services
                 Industry = data.Industry,
                 Address = data.Address,
                 OfficialSite = data.OfficialSite,
-                MarketCapitalization = data.MarketCapitalization,   
+                MarketCapitalization = data.MarketCapitalization,
             };
 
-            if(response == null)
+            if (response == null)
             {
                 throw new Exception("Dados não encontrados.");
             }
 
             return response;
         }
-}}
+    }
+}

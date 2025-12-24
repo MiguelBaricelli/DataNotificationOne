@@ -20,7 +20,7 @@ namespace DataNotificationOne.Infrastructure.ExternalApis
                ?? throw new Exception("API Key Alpha Vantage não configurada");
         }
 
-        public async Task<WeeklyTimeSeriesModel> GetWeeklyDataAsync(string symbol)
+        public async Task<WeeklyTimeSeriesModel> TimeSeriesWeeklyConsumer(string symbol)
         {
             var url =
                 $"https://www.alphavantage.co/query" +

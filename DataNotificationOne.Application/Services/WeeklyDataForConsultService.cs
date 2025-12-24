@@ -5,13 +5,13 @@ using DataNotificationOne.Domain.Services;
 
 namespace DataNotificationOne.Application.Services
 {
-    public class GetWeeklyDataForConsultService : IGetWeeklyDataForConsultService
+    public class WeeklyDataForConsultService : IWeeklyDataForConsultService
     {
 
         private readonly HttpClient _httpClient;
         private readonly IAlphaVantageWeeklyConsumer _consumer;
 
-        public GetWeeklyDataForConsultService(HttpClient httpClient, IAlphaVantageWeeklyConsumer consumer)
+        public WeeklyDataForConsultService(HttpClient httpClient, IAlphaVantageWeeklyConsumer consumer)
         {
             _httpClient = httpClient;
             _consumer = consumer;
@@ -25,7 +25,7 @@ namespace DataNotificationOne.Application.Services
             {
                 throw new ArgumentNullException("Precisa conter o simbolo");
             }
-            var request = await _consumer.GetWeeklyDataAsync(symbol);
+            var request = await _consumer.TimeSeriesWeeklyConsumer(symbol);
 
             if (request == null)
             {

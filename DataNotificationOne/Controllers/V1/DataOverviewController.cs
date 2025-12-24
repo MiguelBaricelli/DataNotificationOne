@@ -1,16 +1,17 @@
-﻿using DataNotificationOne.Application.Services;
+﻿using DataNotificationOne.Application.Dtos;
+using DataNotificationOne.Application.Services;
 using DataNotificationOne.Domain.Models;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DataNotificationOne.Controllers.V1
 {
     [ApiController]
-    [Route("api/[controller]")]
-    public class OverviewDataController : ControllerBase
+    [Route("api/v1/[controller]")]
+    public class DataOverviewController : ControllerBase
     {
         private readonly DataOverviewService _dataOverviewService;
 
-        public OverviewDataController(DataOverviewService dataOverviewService)
+        public DataOverviewController(DataOverviewService dataOverviewService)
         {
             _dataOverviewService = dataOverviewService;
         }
@@ -19,8 +20,8 @@ namespace DataNotificationOne.Controllers.V1
         /// 
         [HttpGet("GetOverviewData/{ativo}")]
         [ProducesResponseType(typeof(OverviewModel), StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(OverviewModel),StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(typeof(OverviewModel),StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(OverviewModel), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(OverviewModel), StatusCodes.Status404NotFound)]
         public async Task<ActionResult<OverviewModel>> GetAllDataOverviewController(string ativo)
         {
             try
@@ -46,10 +47,10 @@ namespace DataNotificationOne.Controllers.V1
         /// <summary>
         /// 
         [HttpGet("GetSummaryCompany/{ativo}")]
-        [ProducesResponseType(typeof(OverviewModel), StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(OverviewModel), StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(typeof(OverviewModel), StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<OverviewModel>> GetSummaryCompanyOverviewController(string ativo)
+        [ProducesResponseType(typeof(SummaryCompanyOverviewDto), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(SummaryCompanyOverviewDto), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(SummaryCompanyOverviewDto), StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<SummaryCompanyOverviewDto>> GetSummaryCompanyOverviewController(string ativo)
         {
             try
             {

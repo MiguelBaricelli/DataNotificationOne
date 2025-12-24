@@ -1,0 +1,54 @@
+﻿using DataNotificationOne.Application;
+using DataNotificationOne.Application.Dtos;
+using Microsoft.AspNetCore.Mvc;
+
+namespace DataNotificationOne.Controllers.V1
+{
+    [ApiController]
+    [Route("api/v1/[controller]")]
+    public class DataDailyController : ControllerBase
+    {
+        private readonly FinanceSummaryVarianceService _getFinanceSummaryVarianceService;
+
+        public DataDailyController(FinanceSummaryVarianceService getFinanceSummaryVarianceService)
+        {
+            _getFinanceSummaryVarianceService = getFinanceSummaryVarianceService;
+        }
+
+
+
+        /// <summary>
+        /// Calcula e retorna a variância dos preços de um ativo (open, high, low, close).
+        /// Importante: o parâmetro "ativo" é obrigatório.
+        /// </summary>
+        /// <param name="ativo">Símbolo do ativo (ex.: MSFT, AAPL, IBM)</param>
+        /// <returns>Objeto FinanceSummaryDto com variância e status do ativo</returns>
+        [HttpGet("GetVariationAsset/{ativo}")]
+        [ProducesResponseType(typeof(FinanceSummaryDto), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(FinanceSummaryDto), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(FinanceSummaryDto), StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<FinanceSummaryDto>> GetFinanceSummaryVarianceController(string ativo)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(ativo))
+                {
+                    return BadRequest("Passe o ativo corretamente");
+                }
+
+                var summary = await _getFinanceSummaryVarianceService.GetFinanceSummaryVarianceAsync(ativo);
+
+                if (summary == null)
+                {
+                    return NotFound("Dados não encontrados");
+                }
+
+                return Ok(summary);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Erro ao buscar os dados.", ex);
+            }
+        }
+    }
+}

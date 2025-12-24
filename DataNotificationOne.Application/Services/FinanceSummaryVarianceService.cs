@@ -1,17 +1,18 @@
 ﻿using DataNotificationOne.Application.Dtos;
 using DataNotificationOne.Application.Interfaces;
 using DataNotificationOne.Domain.Interfaces.Infra;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace DataNotificationOne.Application
 {
-   
-    public class GetFinanceSummaryVarianceService : IGetFinanceSummaryVarianceService
+
+    public class FinanceSummaryVarianceService : IFinanceSummaryVarianceService
     {
         private readonly IAlphaVantageDailyConsumer _client;
-       
-        
 
-        public GetFinanceSummaryVarianceService(IAlphaVantageDailyConsumer client)
+
+
+        public FinanceSummaryVarianceService(IAlphaVantageDailyConsumer client)
         {
             _client = client;
         }
@@ -23,20 +24,21 @@ namespace DataNotificationOne.Application
             {
                 throw new ArgumentNullException("Ativo é obrigatorio");
             }
-           var data = await _client.GetTimeSeriesDailyAsync(ativo);
+            var data = await _client.TimeSeriesDailyConsumer(ativo);
 
             bool isAlta;
-            if(data.Close > data.Open){
+            if (data.Close > data.Open)
+            {
 
                 isAlta = true;
-                
-            } else
+
+            }
+            else
             {
                 isAlta = false;
             }
 
-            decimal variation =
-            Math.Round(((data.Close - data.Open) / data.Open) * 100, 2);
+            var variation = AssetVariation(data.Close, data.Open);
 
             return new FinanceSummaryDto
             {
@@ -49,6 +51,16 @@ namespace DataNotificationOne.Application
                 Variation = variation
 
             };
+        }
+
+        public decimal AssetVariation(decimal close, decimal open)
+        {
+
+            decimal variation =
+             Math.Round(((close - open) / open) * 100, 2);
+
+            return variation;
+
         }
     }
 }
