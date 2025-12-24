@@ -1,17 +1,17 @@
 ﻿using DataNotificationOne.Application.Dtos;
 using DataNotificationOne.Application.Interfaces;
-using DataNotificationOne.Infrastructure.Interfaces;
+using DataNotificationOne.Domain.Interfaces.Infra;
 
 namespace DataNotificationOne.Application
 {
    
-    public class GetFinanceSummaryVarianceService : IGetFinanceSummaryVarianceAsync
+    public class GetFinanceSummaryVarianceService : IGetFinanceSummaryVarianceService
     {
-        private readonly IAlphaVantageClient _client;
+        private readonly IAlphaVantageDailyConsumer _client;
        
         
 
-        public GetFinanceSummaryVarianceService(IAlphaVantageClient client)
+        public GetFinanceSummaryVarianceService(IAlphaVantageDailyConsumer client)
         {
             _client = client;
         }
@@ -23,7 +23,7 @@ namespace DataNotificationOne.Application
             {
                 throw new ArgumentNullException("Ativo é obrigatorio");
             }
-           var data = await _client.GetFinanceDataAsync(ativo);
+           var data = await _client.GetTimeSeriesDailyAsync(ativo);
 
             bool isAlta;
             if(data.Close > data.Open){

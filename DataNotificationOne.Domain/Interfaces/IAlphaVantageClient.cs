@@ -1,4 +1,5 @@
-﻿using DataNotificationOne.Domain.Services;
+﻿using DataNotificationOne.Domain.Models;
+using DataNotificationOne.Domain.Services;
 
 namespace DataNotificationOne.Infrastructure.Interfaces
 {

@@ -1,7 +1,6 @@
 using DataNotificationOne.Application;
+using DataNotificationOne.Application.Services;
 using DataNotificationOne.Infrastructure.DependencyInjection;
-using DataNotificationOne.Infrastructure.ExternalApis;
-using DataNotificationOne.Infrastructure.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -18,6 +17,10 @@ if (string.IsNullOrEmpty(apiKey))
 }
 
 builder.Services.AddScoped<GetFinanceSummaryVarianceService>();
+builder.Services.AddScoped<GetWeeklyDataForConsultService>();
+
+
+builder.Services.AddHttpClient();
 
 builder.Services.AddDependencyInjection();
 // Add services to the container.
