@@ -29,7 +29,7 @@ Responsável por expor endpoints relacionados a:
 
 ---
 
-## 🔸 GET `/api/FinanceData/PegarVarianciaDeAtivo/{ativo}`
+## 🔸 GET `api/FinanceData/GetVariationAsset/{ativo}`
 
 ### 📌 Descrição
 
@@ -71,7 +71,7 @@ Além disso, informa se o ativo está **em alta** com base nos dados analisados.
   "volume": 26507574
 }
 ```
-## 🔸 GET `/api/FinanceData/PegarDadosDaSemana/{ativo}`
+## 🔸 GET `/api/FinanceData/Last10Weeks/{ativo}`
 
 ### 📌 Descrição
 
@@ -108,3 +108,47 @@ Retorna os **dados financeiros da semana mais recente** para o ativo informado.
   "volume": 26507574
 }
 
+```
+
+### 📌 GET `/api/FinanceData/DataSpecificWeekly/{ativo}/{date}`
+
+### 📖 Descrição
+Retorna os **dados financeiros de uma semana específica** para o ativo informado.
+
+---
+
+### 📅 Regras importantes
+- A data deve ser um **dia útil**
+- Datas em **sábado ou domingo não são aceitas**
+
+---
+
+### 📥 Parâmetros de Rota
+
+| Nome  | Tipo     | Obrigatório | Descrição |
+|------|----------|-------------|-----------|
+| ativo | string | ✅ Sim | Símbolo do ativo (ex.: MSFT, AAPL) |
+| date  | DateTime | ✅ Sim | Data da semana desejada (`yyyy-MM-dd`) |
+
+---
+
+### 📤 Respostas
+
+| Código | Descrição |
+|------|-----------|
+| **200 OK** | Retorna um objeto `FinanceDataModel` |
+| **400 Bad Request** | Ativo inválido ou data em final de semana |
+| **404 Not Found** | Nenhum dado retornado pelo serviço |
+
+---
+
+### 🧾 Exemplo de Resposta — **200 OK**
+
+```json
+{
+  "open": 310.20,
+  "high": 315.00,
+  "low": 305.80,
+  "close": 312.45,
+  "volume": 27890011
+}
