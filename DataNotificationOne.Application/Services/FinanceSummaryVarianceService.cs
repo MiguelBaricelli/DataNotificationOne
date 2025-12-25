@@ -1,7 +1,10 @@
 ﻿using DataNotificationOne.Application.Dtos;
 using DataNotificationOne.Application.Interfaces;
+using DataNotificationOne.Application.Utils;
 using DataNotificationOne.Domain.Interfaces.Infra;
-using static System.Runtime.InteropServices.JavaScript.JSType;
+using DataNotificationOne.Domain.Models;
+using DataNotificationOne.Domain.Services;
+
 
 namespace DataNotificationOne.Application
 {
@@ -11,44 +14,58 @@ namespace DataNotificationOne.Application
         private readonly IAlphaVantageDailyConsumer _client;
 
 
-
         public FinanceSummaryVarianceService(IAlphaVantageDailyConsumer client)
         {
             _client = client;
         }
 
-        public async Task<FinanceSummaryDto> GetFinanceSummaryVarianceAsync(string ativo)
+        public async Task<Dictionary<string, FinanceSummaryDto>> GetFinanceSummaryVarianceAsync(string ativo, DateTime date)
         {
 
             if (string.IsNullOrWhiteSpace(ativo))
             {
                 throw new ArgumentNullException("Ativo é obrigatorio");
             }
-            var data = await _client.TimeSeriesDailyConsumer(ativo);
+            var request = await _client.TimeSeriesDailyConsumer(ativo);
 
+            string dateKey = date.ToString("yyyy-MM-dd");
+
+            if (!request.DailyTimeSeries.TryGetValue(dateKey, out var dailyData))
+                throw new Exception($"Nenhum dado foi encontrado para data {dateKey}");
+
+            
             bool isAlta;
-            if (data.Close > data.Open)
+            if (dailyData.Close.ParseDecimal() > dailyData.Open.ParseDecimal())
             {
 
                 isAlta = true;
-
+          
             }
             else
             {
                 isAlta = false;
+                
             }
 
-            var variation = AssetVariation(data.Close, data.Open);
+            var variation = AssetVariation(dailyData.Close.ParseDecimal(), dailyData.Open.ParseDecimal());
 
-            return new FinanceSummaryDto
+            var finnanceSummaryDto = new FinanceSummaryDto
             {
-                Open = data.Open,
-                Close = data.Close,
-                High = data.High,
-                Low = data.Low,
-                Volume = data.Volume,
+                Open = dailyData.Open.ParseDecimal(),
+                High = dailyData.High.ParseDecimal(),
+                Low = dailyData.Low.ParseDecimal(),
+                Close = dailyData.Close.ParseDecimal(),
+                Volume = dailyData.Volume.ParseDecimal(),
+                Variation = variation,
                 IsAlta = isAlta,
-                Variation = variation
+                MessageIsAlta = isAlta ? "O ativo fechou em alta" : "O ativo fechou em baixa"
+
+            };
+
+            return new Dictionary<string, FinanceSummaryDto>
+            {
+
+                {dateKey, finnanceSummaryDto }
 
             };
         }

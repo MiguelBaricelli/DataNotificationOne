@@ -47,7 +47,7 @@ namespace DataNotificationOne.Application.Services
                 throw new ArgumentNullException("Ativo obrigatorio");
             }
 
-            var data = await _alphaVantageOverviewConsumer.GetCompanyOverviewAsync(symbol);
+            var data = await _alphaVantageOverviewConsumer.OverviewConsumer(symbol);
 
             if (data == null)
             {

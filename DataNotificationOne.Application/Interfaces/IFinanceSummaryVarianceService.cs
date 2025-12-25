@@ -1,4 +1,5 @@
 ﻿using DataNotificationOne.Application.Dtos;
+using DataNotificationOne.Domain.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,6 +10,8 @@ namespace DataNotificationOne.Application.Interfaces
 {
     public interface IFinanceSummaryVarianceService
     {
-        Task<FinanceSummaryDto> GetFinanceSummaryVarianceAsync(string ativo);
+        Task<Dictionary<string, FinanceSummaryDto>> GetFinanceSummaryVarianceAsync(string ativo, DateTime date);
+
+        public decimal AssetVariation(decimal close, decimal open);
     }
 }

@@ -41,7 +41,7 @@ namespace DataNotificationOne.Application.Services
             if (string.IsNullOrEmpty(symbol))
                 throw new ArgumentNullException(nameof(symbol), "Precisa conter o símbolo");
 
-            var request = await _consumer.GetWeeklyDataAsync(symbol);
+            var request = await _consumer.TimeSeriesWeeklyConsumer(symbol);
 
             if (request == null)
                 throw new Exception("Não foi possível acessar os dados");
@@ -64,7 +64,7 @@ namespace DataNotificationOne.Application.Services
         // Pega os dados semanais dos últimos 10 períodos (semanas)
         public async Task<WeeklyTimeSeriesModel> GetLastTenWeeklys(string symbol)
         {
-            var request = await _consumer.GetWeeklyDataAsync(symbol);
+            var request = await _consumer.TimeSeriesWeeklyConsumer(symbol);
 
             if (request == null)
                 throw new Exception("Não foi possível acessar os dados");
