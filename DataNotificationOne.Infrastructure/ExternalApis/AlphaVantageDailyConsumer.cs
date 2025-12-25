@@ -1,9 +1,11 @@
 ﻿using System.Globalization;
+using System.Linq;
 using System.Text.Json;
 using DataNotificationOne.Domain.Interfaces.Infra;
 using DataNotificationOne.Domain.Models;
 using DataNotificationOne.Domain.Services;
 using Microsoft.Extensions.Configuration;
+
 namespace DataNotificationOne.Infrastructure.ExternalApis
 {
     public class AlphaVantageDailyConsumer : IAlphaVantageDailyConsumer
@@ -14,22 +16,22 @@ namespace DataNotificationOne.Infrastructure.ExternalApis
         public AlphaVantageDailyConsumer(HttpClient httpClient, IConfiguration configuration)
         {
             _httpClient = httpClient;
-            _apiKey = configuration["ApiKeys:KeyApiFinance"]
+            _apiKey = configuration["ApiKeys:AlphaVantage"]
                 ?? throw new Exception("API Key Alpha Vantage não configurada");
         }
 
-        public async Task<AlphaVantageDailyDto> TimeSeriesDailyConsumer(string symbol)
+        public async Task<DailyTimeSeriesModel> TimeSeriesDailyConsumer(string symbol)
         {
             var url =
-                $"https://www.alphavantage.co/query" +
-                $"?function=TIME_SERIES_DAILY" +
-                $"&symbol={symbol}" +
-                $"&outputsize=compact" +
-                $"&apikey={_apiKey}";
+                   $"https://www.alphavantage.co/query" +
+                   $"?function=TIME_SERIES_DAILY" +
+                   $"&symbol={symbol}" +
+                   $"&outputsize=compact" +
+                   $"&apikey={_apiKey}";
 
             var response = await _httpClient.GetAsync(url);
 
-            if(response == null)
+            if (response == null)
             {
                 Console.WriteLine("Dados estão vindo nulos da api");
                 throw new Exception("Dados estão vindo nulo da api");
@@ -48,38 +50,19 @@ namespace DataNotificationOne.Infrastructure.ExternalApis
             };
 
             var data =
-                JsonSerializer.Deserialize<AlphaVantageResponseDto>(json, options)
+                JsonSerializer.Deserialize<DailyTimeSeriesModel>(json, options)
                 ?? throw new Exception("Resposta inválida da Alpha Vantage");
 
-            if(data == null)
+            if (data == null || data.TimeSeriesDaily == null)
             {
-                Console.WriteLine("Dados do json vierao nulos");
-                throw new Exception("Dados do json vierao nulos");
+                Console.WriteLine("Dados do json vieram nulos ou vazios");
+                throw new Exception("Dados do json vieram nulos ou vazios");
             }
 
-            // pega o dia mais recente
-            var ultimoDia = data.TimeSeries
-                .OrderByDescending(x => x.Key)
-                .First().Value;
-
-            if(ultimoDia.Volume == null)
+            // Retorna os campos exatamente como vieram no JSON e inclui a data
+            return new DailyTimeSeriesModel
             {
-                return new FinanceDataModel
-                {
-                    Open = decimal.Parse(ultimoDia.Open, CultureInfo.InvariantCulture),
-                    High = decimal.Parse(ultimoDia.High, CultureInfo.InvariantCulture),
-                    Low = decimal.Parse(ultimoDia.Low, CultureInfo.InvariantCulture),
-                    Close = decimal.Parse(ultimoDia.Close, CultureInfo.InvariantCulture),
-                };
-            }
-
-            return new FinanceDataModel
-            {
-                Open = decimal.Parse(ultimoDia.Open, CultureInfo.InvariantCulture),
-                High = decimal.Parse(ultimoDia.High, CultureInfo.InvariantCulture),
-                Low = decimal.Parse(ultimoDia.Low, CultureInfo.InvariantCulture),
-                Close = decimal.Parse(ultimoDia.Close, CultureInfo.InvariantCulture),
-                Volume = long.Parse(ultimoDia.Volume),               
+               TimeSeriesDaily = data.TimeSeriesDaily
             };
         }
     }

@@ -16,39 +16,49 @@ namespace DataNotificationOne.Application.Services
             _financeSummaryVarianceService = financeSummaryVarianceService;
         }
 
-        public async Task<string> GenerateDailyVarianceMessageAsync(string symbol)
+        public async Task<string> GenerateDailyVarianceMessageAsync(string symbol, DateTime date)
         {
             if (string.IsNullOrWhiteSpace(symbol))
             {
                 throw new ArgumentNullException("O símbolo é obrigatório.");
             }
-            var data = await _financeSummaryVarianceService.GetFinanceSummaryVarianceAsync(symbol);
+            var data = await _financeSummaryVarianceService.GetFinanceSummaryVarianceAsync(symbol, date);
 
             string message = "O ativo {symbol} teve uma variação de {data.Variation}% hoje. ";
 
             return message;
         }
 
-        public async Task<string> GenerateCustomDailyMessageAsync(string symbol)
+        public async Task<string> GenerateCustomDailyMessageAsync(string symbol, DateTime date)
         {
             if (string.IsNullOrWhiteSpace(symbol))
             {
                 throw new ArgumentNullException("O símbolo é obrigatório.");
             }
 
-            var data = await _financeSummaryVarianceService.GetFinanceSummaryVarianceAsync(symbol);
+            var data = await _financeSummaryVarianceService.GetFinanceSummaryVarianceAsync(symbol, date);
 
             if (data == null)
             {
                 throw new Exception("Dados financeiros não encontrados para o símbolo fornecido.");
             }
 
+            var dateKey = date.ToString("yyyy-MM-dd");
+
+            if (data.TryGetValue(dateKey, out var responseData))
+            {
+                throw new Exception("Dados financeiros não encontrados para a data fornecida.");
+            }
+
             var message = $"O ativo {symbol} apresentou as seguintes variações hoje: " +
-                $"Abertura: {data.Open}%, Máxima: {data.High}%, " +
-                $"Mínima: {data.Low}%, " +
-                $"Fechamento: {data.Close}%. " +
-                $"A variação total foi de {data.Variation}%." +
-                $"Em Alta: {data.IsAlta}";
+                $"Abertura: {responseData.Open}%" +
+                $"Máxima: {responseData.High}%, " +
+                $"Mínima: {responseData.Low}%, " +
+                $"Fechamento: {responseData.Close}%. " +
+                $"A variação total foi de {responseData.Variation}%." +
+                $"Em Alta: {responseData.IsAlta}" +
+                $"Tendencia: {responseData.MessageIsAlta}";
+             
 
             return message;
         }

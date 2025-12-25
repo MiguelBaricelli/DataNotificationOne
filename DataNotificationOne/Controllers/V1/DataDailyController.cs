@@ -23,11 +23,11 @@ namespace DataNotificationOne.Controllers.V1
         /// </summary>
         /// <param name="ativo">Símbolo do ativo (ex.: MSFT, AAPL, IBM)</param>
         /// <returns>Objeto FinanceSummaryDto com variância e status do ativo</returns>
-        [HttpGet("GetVariationAsset/{ativo}")]
+        [HttpGet("GetVariationAsset/{ativo}/{date}")]
         [ProducesResponseType(typeof(FinanceSummaryDto), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(FinanceSummaryDto), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(FinanceSummaryDto), StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<FinanceSummaryDto>> GetFinanceSummaryVarianceController(string ativo)
+        public async Task<ActionResult<FinanceSummaryDto>> GetFinanceSummaryVarianceController(string ativo, DateTime date)
         {
             try
             {
@@ -36,7 +36,7 @@ namespace DataNotificationOne.Controllers.V1
                     return BadRequest("Passe o ativo corretamente");
                 }
 
-                var summary = await _getFinanceSummaryVarianceService.GetFinanceSummaryVarianceAsync(ativo);
+                var summary = await _getFinanceSummaryVarianceService.GetFinanceSummaryVarianceAsync(ativo, date);
 
                 if (summary == null)
                 {

@@ -19,6 +19,6 @@ namespace DataNotificationOne.Application.Dtos
         public string MessageIsAlta
         {
             get; set;
-        }
+        } = string.Empty;
     }
 }

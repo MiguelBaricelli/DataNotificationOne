@@ -16,7 +16,7 @@ namespace DataNotificationOne.Infrastructure.ExternalApis
         public AlphaVantageWeeklyConsumer(HttpClient httpClient, IConfiguration configuration)
         {
             _httpClient = httpClient;
-            _apiKey = configuration["ApiKeys:KeyApiFinance"]
+            _apiKey = configuration["ApiKeys:AlphaVantage"]
                ?? throw new Exception("API Key Alpha Vantage não configurada");
         }
 

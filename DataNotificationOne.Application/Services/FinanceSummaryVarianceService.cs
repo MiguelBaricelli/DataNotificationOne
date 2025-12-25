@@ -8,7 +8,6 @@ using DataNotificationOne.Domain.Services;
 
 namespace DataNotificationOne.Application
 {
-
     public class FinanceSummaryVarianceService : IFinanceSummaryVarianceService
     {
         private readonly IAlphaVantageDailyConsumer _client;
@@ -30,7 +29,7 @@ namespace DataNotificationOne.Application
 
             string dateKey = date.ToString("yyyy-MM-dd");
 
-            if (!request.DailyTimeSeries.TryGetValue(dateKey, out var dailyData))
+            if (!request.TimeSeriesDaily.TryGetValue(dateKey, out var dailyData))
                 throw new Exception($"Nenhum dado foi encontrado para data {dateKey}");
 
             
@@ -51,6 +50,7 @@ namespace DataNotificationOne.Application
 
             var finnanceSummaryDto = new FinanceSummaryDto
             {
+                
                 Open = dailyData.Open.ParseDecimal(),
                 High = dailyData.High.ParseDecimal(),
                 Low = dailyData.Low.ParseDecimal(),
