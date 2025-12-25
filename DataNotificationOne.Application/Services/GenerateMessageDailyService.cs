@@ -1,13 +1,9 @@
-﻿using DataNotificationOne.Domain.Interfaces.Infra;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using DataNotificationOne.Application.Interfaces;
+using DataNotificationOne.Domain.Interfaces.Infra;
 
 namespace DataNotificationOne.Application.Services
 {
-    public class GenerateMessageDailyService
+    public class GenerateMessageDailyService : IGenerateMessageDailyService
     {
         private readonly FinanceSummaryVarianceService _financeSummaryVarianceService;
 
@@ -58,7 +54,7 @@ namespace DataNotificationOne.Application.Services
                 $"A variação total foi de {responseData.Variation}%." +
                 $"Em Alta: {responseData.IsAlta}" +
                 $"Tendencia: {responseData.MessageIsAlta}";
-             
+
 
             return message;
         }
@@ -70,7 +66,7 @@ namespace DataNotificationOne.Application.Services
                 throw new ArgumentNullException("O símbolo é obrigatório.");
             }
 
-            if(string.IsNullOrWhiteSpace(date.ToString()))
+            if (string.IsNullOrWhiteSpace(date.ToString()))
             {
                 throw new ArgumentNullException("A data é obrigatória.");
             }
@@ -84,7 +80,7 @@ namespace DataNotificationOne.Application.Services
 
             var keyDate = date.ToString("yyyy-MM-dd");
 
-            if(!data.TryGetValue(keyDate, out var responseData))
+            if (!data.TryGetValue(keyDate, out var responseData))
             {
                 throw new Exception("Dados financeiros não encontrados para a data fornecida.");
             }
