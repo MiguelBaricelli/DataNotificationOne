@@ -5,6 +5,6 @@ namespace DataNotificationOne.Domain.Interfaces.Infra
 {
     public interface IAlphaVantageWeeklyConsumer
     {
-        Task<WeeklyTimeSeriesModel> GetWeeklyDataAsync(string symbol);
+        Task<WeeklyTimeSeriesModel> TimeSeriesWeeklyConsumer(string symbol);
     }
 }

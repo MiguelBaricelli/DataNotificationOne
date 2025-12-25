@@ -4,6 +4,6 @@ namespace DataNotificationOne.Domain.Interfaces.Infra
 {
     public interface IAlphaVantageDailyConsumer
     {
-        Task<FinanceDataModel> GetTimeSeriesDailyAsync(string ativo);
+        Task<DailyTimeSeriesModel> TimeSeriesDailyConsumer(string ativo);
     }
 }

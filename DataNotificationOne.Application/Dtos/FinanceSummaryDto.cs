@@ -15,5 +15,10 @@ namespace DataNotificationOne.Application.Dtos
         public decimal Volume { get; set; }
         public decimal Variation { get; set; } 
         public bool IsAlta { get; set; }
+
+        public string MessageIsAlta
+        {
+            get; set;
+        } = string.Empty;
     }
 }

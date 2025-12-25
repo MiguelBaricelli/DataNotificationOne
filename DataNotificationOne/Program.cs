@@ -7,7 +7,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Configuration.AddUserSecrets<Program>();
 
-
+/*
 var apiKey = builder.Configuration["ApiKeys:KeyApiFinance"];
 
 if (string.IsNullOrEmpty(apiKey))
@@ -15,9 +15,18 @@ if (string.IsNullOrEmpty(apiKey))
     Console.WriteLine("Chave da api não encontrada no User Secrets");
     throw new ArgumentException("Chave da api não encontrada no User Secrets");
 }
+*/
+var getApiKey = builder.Configuration["ApiKeys:AlphaVantage"];
 
-builder.Services.AddScoped<GetFinanceSummaryVarianceService>();
-builder.Services.AddScoped<GetWeeklyDataForConsultService>();
+if (string.IsNullOrEmpty(getApiKey))
+{
+    Console.WriteLine("Chave da api Alpha Vantage não encontrada no User Secrets");
+    throw new ArgumentException("Chave da api Alpha Vantage não encontrada no User Secrets");
+}
+
+builder.Services.AddScoped<FinanceSummaryVarianceService>();
+builder.Services.AddScoped<WeeklyDataForConsultService>();
+builder.Services.AddScoped<DataOverviewService>();
 
 
 builder.Services.AddHttpClient();

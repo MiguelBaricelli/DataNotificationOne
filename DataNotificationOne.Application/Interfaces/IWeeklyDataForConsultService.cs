@@ -2,7 +2,7 @@
 
 namespace DataNotificationOne.Application.Interfaces
 {
-    public interface IGetWeeklyDataForConsultService
+    public interface IWeeklyDataForConsultService
     {
         Task<WeeklyTimeSeriesModel> GetWeeklyDataAsync(string symbol);
         Task<WeeklyTimeSeriesModel> GetDataByWeekly(string symbol, DateTime date);
