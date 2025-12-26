@@ -101,5 +101,88 @@ namespace DataNotificationOne.Application.Services
                     }
             }
         }
+
+        public async Task<GeneralResponseModel> GetGeneralData(string asset, DateTime date, FunctionAlphaVantageEnum func, int qtdNumber)
+        {
+            if(qtdNumber <= 0 || qtdNumber > 100)
+                qtdNumber = 100;
+
+            var response = await _alphaVantageGeneralConsumer.TimeSeriesGeneralConsumer(asset, func);
+
+            // Escolhe a série conforme o enum solicitado; se não existir, faz fallback para a primeira série disponível
+            Dictionary<string, AlphaVantageDailyDto>? sourceSeries = func switch
+            {
+                FunctionAlphaVantageEnum.TIME_SERIES_DAILY => response.TimeSeriesDaily,
+                FunctionAlphaVantageEnum.TIME_SERIES_WEEKLY => response.WeeklyTimeSeries,
+                FunctionAlphaVantageEnum.TIME_SERIES_MONTHLY => response.TimeSeriesMonthly,
+                _ => null
+            };
+
+            if (sourceSeries == null || sourceSeries.Count == 0)
+            {
+                // fallback: primeira série não-nula encontrada
+                sourceSeries = response.TimeSeriesDaily ?? response.WeeklyTimeSeries ?? response.TimeSeriesMonthly;
+            }
+
+            if (sourceSeries == null || sourceSeries.Count == 0)
+                throw new Exception("Nenhuma série temporal disponível na resposta.");
+
+            
+            var general = new GeneralResponseModel();
+
+            switch (func)
+            {
+                case FunctionAlphaVantageEnum.TIME_SERIES_DAILY:
+                    {
+                        var selected = sourceSeries
+                            .OrderByDescending(k => k.Key)
+                            .Take(qtdNumber)
+                            .ToDictionary(k => k.Key, k => k.Value);
+
+                        general.TimeSeriesDaily = selected;
+                        return general;
+                    }
+
+                case FunctionAlphaVantageEnum.TIME_SERIES_WEEKLY:
+                    {
+                        var selected = sourceSeries
+                            .OrderByDescending(k => k.Key)
+                            .Take(qtdNumber)
+                            .ToDictionary(k => k.Key, k => k.Value);
+
+                        general.WeeklyTimeSeries = selected;
+                        return general;
+                    }
+
+                case FunctionAlphaVantageEnum.TIME_SERIES_MONTHLY:
+                    {
+                        var selected = sourceSeries
+                            .Where(k =>
+                            {
+                                if (DateTime.TryParse(k.Key, out var dt))
+                                    return dt.Year == date.Year;
+                                return k.Key.StartsWith(date.Year.ToString());
+                            })
+                            .OrderByDescending(k => k.Key)
+                            .Take(qtdNumber)
+                            .ToDictionary(k => k.Key, k => k.Value);
+
+                        general.TimeSeriesMonthly = selected;
+                        return general;
+                    }
+
+                default:
+                    {
+                        var selected = sourceSeries
+                            .OrderByDescending(k => k.Key)
+                            .Take(qtdNumber)
+                            .ToDictionary(k => k.Key, k => k.Value);
+
+                        general.TimeSeriesDaily = selected;
+                        return general;
+                    }
+            }
+        }
+
     }
 }
