@@ -1,6 +1,7 @@
 using DataNotificationOne.Application;
 using DataNotificationOne.Application.Services;
 using DataNotificationOne.Infrastructure.DependencyInjection;
+using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -27,6 +28,10 @@ if (string.IsNullOrEmpty(getApiKey))
 builder.Services.AddScoped<FinanceSummaryVarianceService>();
 builder.Services.AddScoped<WeeklyDataForConsultService>();
 builder.Services.AddScoped<DataOverviewService>();
+builder.Services.AddScoped<GeneralResponseService>();
+builder.Services.AddScoped<GenerateMessageDailyService>();
+
+
 
 
 builder.Services.AddHttpClient();
@@ -34,7 +39,11 @@ builder.Services.AddHttpClient();
 builder.Services.AddDependencyInjection();
 // Add services to the container.
 
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+    });
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
