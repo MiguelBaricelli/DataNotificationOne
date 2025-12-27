@@ -53,7 +53,7 @@ namespace DataNotificationOne.Controllers.V1
         [ProducesResponseType(typeof(FinanceDataModel), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(FinanceDataModel), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(FinanceDataModel), StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<FinanceDataModel>> GetGeneralDataByQuantity(string asset, DateTime date, FunctionAlphaVantageEnum func, int n)
+        public async Task<ActionResult<FinanceDataModel>> GetGeneralDataByQuantity(string asset, DateTime date, FunctionAlphaVantageEnum function, int n)
         {
             try
             {
@@ -73,7 +73,7 @@ namespace DataNotificationOne.Controllers.V1
                     return BadRequest("A quantidade fornecida é inválida");
                 }
 
-                var response = await _generalResponseService.GetGeneralData(asset, date, func, n);
+                var response = await _generalResponseService.GetGeneralData(asset, date, function, n);
 
                 if (response is null)
                 {
