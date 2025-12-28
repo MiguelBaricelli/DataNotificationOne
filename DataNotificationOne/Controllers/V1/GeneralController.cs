@@ -80,6 +80,7 @@ namespace DataNotificationOne.Controllers.V1
                     return NotFound("Não encontrado nenhum dado");
                 }
 
+
                 return Ok(response);
             }
             catch (Exception ex)

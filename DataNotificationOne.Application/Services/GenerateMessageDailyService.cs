@@ -1,15 +1,19 @@
 ﻿using DataNotificationOne.Application.Interfaces;
 using DataNotificationOne.Domain.Interfaces.Infra;
+using DataNotificationOne.Domain.BuildTemplates;
+using DataNotificationOne.Domain.Services;
 
 namespace DataNotificationOne.Application.Services
 {
     public class GenerateMessageDailyService : IGenerateMessageDailyService
     {
         private readonly FinanceSummaryVarianceService _financeSummaryVarianceService;
+        private readonly BuildTemplates _buildTemplates;
 
-        public GenerateMessageDailyService(IAlphaVantageDailyConsumer alphaVantageDailyConsumer, FinanceSummaryVarianceService financeSummaryVarianceService)
+        public GenerateMessageDailyService(FinanceSummaryVarianceService financeSummaryVarianceService, BuildTemplates buildTemplates)
         {
             _financeSummaryVarianceService = financeSummaryVarianceService;
+            _buildTemplates = buildTemplates;
         }
 
         public async Task<string> GenerateDailyVarianceMessageAsync(string symbol, DateTime date)
@@ -20,12 +24,38 @@ namespace DataNotificationOne.Application.Services
             }
             var data = await _financeSummaryVarianceService.GetFinanceSummaryVarianceAsync(symbol, date);
 
-            string message = "O ativo {symbol} teve uma variação de {data.Variation}% hoje. ";
+            if (data == null)
+            {
+                throw new Exception("Dados financeiros não encontrados para o símbolo fornecido.");
+            }
 
-            return message;
+            var dateKey = date.ToString("yyyy-MM-dd");
+
+            if (data.TryGetValue(dateKey, out var responseData))
+            {
+                throw new Exception("Dados financeiros não encontrados para a data fornecida.");
+            }
+
+            var templatePath = Path.Combine(AppContext.BaseDirectory, "Models", "Templates", "VarianceTemplateEmail.html");
+            var templateHtml = await File.ReadAllTextAsync(templatePath);
+
+            var html =  _buildTemplates.BuildDailyHtmlVariance(
+                templateHtml,
+                symbol,
+                date,
+                responseData.Open,
+                responseData.High,
+                responseData.Low,
+                responseData.Close,
+                responseData.Variation,
+                responseData.IsAlta,
+                responseData.MessageIsAlta
+            );
+
+            return html;
         }
 
-        public async Task<string> GenerateCustomDailyMessageAsync(string symbol, DateTime date)
+        public async Task<string> GenerateGenericDailyMessageAsync(string symbol, DateTime date)
         {
             if (string.IsNullOrWhiteSpace(symbol))
             {
@@ -41,63 +71,54 @@ namespace DataNotificationOne.Application.Services
 
             var dateKey = date.ToString("yyyy-MM-dd");
 
-            if (data.TryGetValue(dateKey, out var responseData))
+            if (!data.TryGetValue(dateKey, out var responseData))
             {
                 throw new Exception("Dados financeiros não encontrados para a data fornecida.");
             }
 
-            var message = $"O ativo {symbol} apresentou as seguintes variações hoje: " +
-                $"Abertura: {responseData.Open}%" +
-                $"Máxima: {responseData.High}%, " +
-                $"Mínima: {responseData.Low}%, " +
-                $"Fechamento: {responseData.Close}%. " +
-                $"A variação total foi de {responseData.Variation}%." +
-                $"Em Alta: {responseData.IsAlta}" +
-                $"Tendencia: {responseData.MessageIsAlta}";
+            var templatePath = Path.Combine(AppContext.BaseDirectory,"Models", "Templates", "DailyTemplateEmailGeneric.html");
+            var templateHtml = await File.ReadAllTextAsync(templatePath);
 
+            var html = _buildTemplates.BuildDailyHtmlGeneric(
+                templateHtml,
+                symbol,
+                date,
+                responseData.Open,
+                responseData.High,
+                responseData.Low,
+                responseData.Close
+            );
 
-            return message;
+            return html;
         }
 
-        public async Task<string> GenerateCustomDailyMessageByClientAsync(string nameClient, string symbol, DateTime date)
+        public async Task<string> GenerateCustomDailyEmailByClientAsync(string nameClient, string symbol, DateTime date)
         {
-            if (string.IsNullOrWhiteSpace(symbol))
-            {
-                throw new ArgumentNullException("O símbolo é obrigatório.");
-            }
-
-            if (string.IsNullOrWhiteSpace(date.ToString()))
-            {
-                throw new ArgumentNullException("A data é obrigatória.");
-            }
-
             var data = await _financeSummaryVarianceService.GetFinanceSummaryVarianceAsync(symbol, date);
-
-            if (data == null)
-            {
-                throw new Exception("Dados financeiros não encontrados para o símbolo fornecido.");
-            }
-
             var keyDate = date.ToString("yyyy-MM-dd");
 
             if (!data.TryGetValue(keyDate, out var responseData))
-            {
                 throw new Exception("Dados financeiros não encontrados para a data fornecida.");
-            }
 
+            var templatePath = Path.Combine(AppContext.BaseDirectory,"Models", "Templates", "DailyTemplateEmailByClient.html");
+            var templateHtml = await File.ReadAllTextAsync(templatePath);
 
-            var message = $"Olá {nameClient}, \n" +
-                $"No dia {keyDate}, " +
-                $"O ativo {symbol} apresentou as seguintes variações hoje: \n" +
-                $"Abertura: {responseData.Open}%, \n" +
-                $"Máxima: {responseData.High}%, \n" +
-                $"Mínima: {responseData.Low}%, \n" +
-                $"Fechamento: {responseData.Close}%. \n" +
-                $"A variação total foi de {responseData.Variation}%.\n" +
-                $"Em Alta: {responseData.IsAlta}" +
-                $"{responseData.MessageIsAlta}";
+            var html = _buildTemplates.BuildDailyHtmlForClient(
+                templateHtml,
+                nameClient,
+                symbol,
+                date,
+                responseData.Open,
+                responseData.High,
+                responseData.Low,
+                responseData.Close,
+                responseData.Variation,
+                responseData.IsAlta,
+                responseData.MessageIsAlta
+            );
 
-            return message;
+            return html;
         }
+
     }
 }

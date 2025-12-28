@@ -9,7 +9,7 @@ namespace DataNotificationOne.Application.Interfaces
     public interface IGenerateMessageDailyService
     {
         Task<string> GenerateDailyVarianceMessageAsync(string symbol, DateTime date);
-        Task<string> GenerateCustomDailyMessageAsync(string symbol, DateTime date);
-        Task<string> GenerateCustomDailyMessageByClientAsync(string nameClient, string symbol, DateTime date);
+        Task<string> GenerateGenericDailyMessageAsync(string symbol, DateTime date);
+        Task<string> GenerateCustomDailyEmailByClientAsync(string nameClient, string symbol, DateTime date);
     }
 }
