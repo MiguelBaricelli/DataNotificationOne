@@ -7,10 +7,10 @@ namespace DataNotificationOne.Application.Services
 {
     public class GenerateMessageDailyService : IGenerateMessageDailyService
     {
-        private readonly FinanceSummaryVarianceService _financeSummaryVarianceService;
+        private readonly IFinanceSummaryVarianceService _financeSummaryVarianceService;
         private readonly BuildTemplates _buildTemplates;
 
-        public GenerateMessageDailyService(FinanceSummaryVarianceService financeSummaryVarianceService, BuildTemplates buildTemplates)
+        public GenerateMessageDailyService(IFinanceSummaryVarianceService financeSummaryVarianceService, BuildTemplates buildTemplates)
         {
             _financeSummaryVarianceService = financeSummaryVarianceService;
             _buildTemplates = buildTemplates;
@@ -36,7 +36,7 @@ namespace DataNotificationOne.Application.Services
                 throw new Exception("Dados financeiros não encontrados para a data fornecida.");
             }
 
-            var templatePath = Path.Combine(AppContext.BaseDirectory, "Models", "Templates", "VarianceTemplateEmail.html");
+            var templatePath = Path.Combine(AppContext.BaseDirectory, "Templates", "VarianceTemplateEmail.html");
             var templateHtml = await File.ReadAllTextAsync(templatePath);
 
             var html =  _buildTemplates.BuildDailyHtmlVariance(
@@ -76,7 +76,7 @@ namespace DataNotificationOne.Application.Services
                 throw new Exception("Dados financeiros não encontrados para a data fornecida.");
             }
 
-            var templatePath = Path.Combine(AppContext.BaseDirectory,"Models", "Templates", "DailyTemplateEmailGeneric.html");
+            var templatePath = Path.Combine(AppContext.BaseDirectory, "Templates", "DailyTemplateEmailGeneric.html");
             var templateHtml = await File.ReadAllTextAsync(templatePath);
 
             var html = _buildTemplates.BuildDailyHtmlGeneric(
@@ -100,7 +100,7 @@ namespace DataNotificationOne.Application.Services
             if (!data.TryGetValue(keyDate, out var responseData))
                 throw new Exception("Dados financeiros não encontrados para a data fornecida.");
 
-            var templatePath = Path.Combine(AppContext.BaseDirectory,"Models", "Templates", "DailyTemplateEmailByClient.html");
+            var templatePath = Path.Combine(AppContext.BaseDirectory, "Templates", "DailyTemplateEmailByClient.html");
             var templateHtml = await File.ReadAllTextAsync(templatePath);
 
             var html = _buildTemplates.BuildDailyHtmlForClient(

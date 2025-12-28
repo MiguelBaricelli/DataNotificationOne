@@ -1,4 +1,5 @@
 ﻿using DataNotificationOne.Application.Interfaces;
+using DataNotificationOne.Domain.Interfaces.Infra;
 using DataNotificationOne.Domain.Models.Email;
 using DataNotificationOne.Infrastructure.ExternalApis.Email;
 using Microsoft.AspNetCore.Mvc;
@@ -12,16 +13,14 @@ namespace DataNotificationOne.Controllers.V1
     [Route("api/v1/[controller]")]
     public class EmailController : ControllerBase
     {
-        private readonly SendGridIntegration _sendGridIntegration;
+        private readonly ISendGridIntegration _sendGridIntegration;
         private readonly IGenerateMessageDailyService _generateMessageDaily;
-        private readonly IConfiguration _configuration;
         private readonly ILogger<EmailController> _logger;
-        public EmailController(IConfiguration configuration, 
+        public EmailController( 
             ILogger<EmailController> iLogger, 
             IGenerateMessageDailyService generateMessageDaily,
-            SendGridIntegration sendGridIntegration)
+            ISendGridIntegration sendGridIntegration)
         {
-            _configuration = configuration;
            _logger = iLogger;
             _generateMessageDaily = generateMessageDaily;
             _sendGridIntegration = sendGridIntegration;
