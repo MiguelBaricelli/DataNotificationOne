@@ -1,15 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using DataNotificationOne.Domain.Models.Email;
 
 namespace DataNotificationOne.Application.Interfaces
 {
     public interface IGenerateMessageDailyService
     {
-        Task<string> GenerateDailyVarianceMessageAsync(string symbol, DateTime date);
-        Task<string> GenerateGenericDailyMessageAsync(string symbol, DateTime date);
-        Task<string> GenerateCustomDailyEmailByClientAsync(string nameClient, string symbol, DateTime date);
+        Task<EmailModel> GenerateGenericDailyMessageAsync(string asset, DateTime date, string toEmail);
+        Task<EmailModel> GenerateDailyVarianceMessageAsync(string clientName, string asset, DateTime date, string toEmail);
+        Task<EmailModel> GenerateCustomDailyEmailByClientAsync(string clientName, string asset, DateTime date, string toEmail);
     }
 }

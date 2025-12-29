@@ -4,15 +4,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DataNotificationOne.Domain.Models.Email
+namespace DataNotificationOne.Application.Dtos
 {
-    public class EmailModel
+    public class InputEmailGenericDailyDto
     {
         public string Asset { get; set; } = string.Empty;
         public DateTime Date { get; set; }
-        public string Subject { get; set; } = string.Empty;
         public string ToEmail { get; set; } = string.Empty;
-        public string Content { get; set; } = string.Empty;
-
     }
 }

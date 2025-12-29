@@ -1,7 +1,7 @@
 using DataNotificationOne.Application;
 using DataNotificationOne.Application.Interfaces;
 using DataNotificationOne.Application.Services;
-using DataNotificationOne.Domain.BuildTemplates;
+using DataNotificationOne.Application.Services.Email;
 using DataNotificationOne.Infrastructure.DependencyInjection;
 using System.Text.Json.Serialization;
 
@@ -10,15 +10,6 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Configuration.AddUserSecrets<Program>();
 
-/*
-var apiKey = builder.Configuration["ApiKeys:KeyApiFinance"];
-
-if (string.IsNullOrEmpty(apiKey))
-{
-    Console.WriteLine("Chave da api não encontrada no User Secrets");
-    throw new ArgumentException("Chave da api não encontrada no User Secrets");
-}
-*/
 var getApiKey = builder.Configuration["ApiKeys:AlphaVantage"];
 
 if (string.IsNullOrEmpty(getApiKey))
@@ -32,9 +23,7 @@ builder.Services.AddScoped<IWeeklyDataForConsultService,WeeklyDataForConsultServ
 builder.Services.AddScoped<IDataOverviewService, DataOverviewService>();
 builder.Services.AddScoped<IGeneralResponseService, GeneralResponseService>();
 builder.Services.AddScoped<IGenerateMessageDailyService,GenerateMessageDailyService>();
-builder.Services.AddScoped<BuildTemplates>();
-
-
+builder.Services.AddScoped<IEmailExecutor, EmailExecutor>();
 
 
 

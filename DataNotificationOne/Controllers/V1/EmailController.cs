@@ -1,11 +1,6 @@
-﻿using DataNotificationOne.Application.Interfaces;
-using DataNotificationOne.Domain.Interfaces.Infra;
-using DataNotificationOne.Domain.Models.Email;
-using DataNotificationOne.Infrastructure.ExternalApis.Email;
+﻿using DataNotificationOne.Application.Dtos;
+using DataNotificationOne.Application.Interfaces;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
-using System;
-using System.Threading.Tasks;
 
 namespace DataNotificationOne.Controllers.V1
 {
@@ -13,43 +8,44 @@ namespace DataNotificationOne.Controllers.V1
     [Route("api/v1/[controller]")]
     public class EmailController : ControllerBase
     {
-        private readonly ISendGridIntegration _sendGridIntegration;
-        private readonly IGenerateMessageDailyService _generateMessageDaily;
         private readonly ILogger<EmailController> _logger;
-        public EmailController( 
-            ILogger<EmailController> iLogger, 
-            IGenerateMessageDailyService generateMessageDaily,
-            ISendGridIntegration sendGridIntegration)
+        private readonly IEmailExecutor _emailExecutor;
+
+        public EmailController(
+            ILogger<EmailController> iLogger,
+            IEmailExecutor emailExecutor)
+
         {
-           _logger = iLogger;
-            _generateMessageDaily = generateMessageDaily;
-            _sendGridIntegration = sendGridIntegration;
+            _emailExecutor = emailExecutor;
+            _logger = iLogger;
         }
 
         [HttpPost("sendGenericEmail")]
+        [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(bool), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(bool), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(bool), StatusCodes.Status500InternalServerError)]
 
-        public async Task<ActionResult<string>> SendGenericDailyEmail(EmailModel emailModel)
+        public async Task<ActionResult<string>> SendGenericDailyEmail([FromBody] InputEmailGenericDailyDto inputEmailDto)
         {
             try
             {
-                if (string.IsNullOrWhiteSpace(emailModel.asset)) 
-                    throw new ArgumentNullException(nameof(emailModel.asset));
-                if (emailModel.date == DateTime.MinValue)
-                    throw new ArgumentNullException(nameof(emailModel.date));
-                if (string.IsNullOrWhiteSpace(emailModel.toEmail))
-                    throw new ArgumentNullException(nameof(emailModel.toEmail));
-
-
-                var generatingMessage = await _generateMessageDaily.GenerateGenericDailyMessageAsync(emailModel.asset, emailModel.date).ConfigureAwait(false);
-
-                if (string.IsNullOrWhiteSpace(generatingMessage))
+                if (string.IsNullOrWhiteSpace(inputEmailDto.Asset) ||
+                    inputEmailDto.Date == DateTime.MinValue ||
+                    string.IsNullOrWhiteSpace(inputEmailDto.ToEmail))
                 {
-                    _logger.LogError("Dados não foram encontrados para asset {} e data {}", emailModel.asset, emailModel.date);
-                    return NotFound("Dados não foram enviados");
+                    _logger.LogError("{Class} Parâmetros inválidos para o envio do email genérico diario", nameof(SendGenericDailyEmail));
+                    return BadRequest("Necessário informar o ativo corretamente");
                 }
-                 await _sendGridIntegration.SendEmailAsync(emailModel).ConfigureAwait(false);
 
-                  return Ok(generatingMessage);
+                var sendEmail = await _emailExecutor.ExecuteEmailDailyAsync(inputEmailDto);
+
+                if (!sendEmail)
+                {
+                    _logger.LogError("Não foi possivel executar o envio do email genérico diario");
+                    return NotFound(sendEmail);
+                }
+                return Ok(sendEmail);
 
             }
             catch (Exception ex)

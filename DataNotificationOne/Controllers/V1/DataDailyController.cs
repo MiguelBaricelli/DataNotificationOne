@@ -1,5 +1,6 @@
 ﻿using DataNotificationOne.Application;
 using DataNotificationOne.Application.Dtos;
+using DataNotificationOne.Application.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DataNotificationOne.Controllers.V1
@@ -8,9 +9,9 @@ namespace DataNotificationOne.Controllers.V1
     [Route("api/v1/[controller]")]
     public class DataDailyController : ControllerBase
     {
-        private readonly FinanceSummaryVarianceService _getFinanceSummaryVarianceService;
+        private readonly IFinanceSummaryVarianceService _getFinanceSummaryVarianceService;
 
-        public DataDailyController(FinanceSummaryVarianceService getFinanceSummaryVarianceService)
+        public DataDailyController(IFinanceSummaryVarianceService getFinanceSummaryVarianceService)
         {
             _getFinanceSummaryVarianceService = getFinanceSummaryVarianceService;
         }
