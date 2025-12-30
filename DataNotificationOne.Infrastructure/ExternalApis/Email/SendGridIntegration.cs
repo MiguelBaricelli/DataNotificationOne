@@ -63,7 +63,7 @@ namespace DataNotificationOne.Infrastructure.ExternalApis.Email
                 return false;
             }
 
-            _logger.LogInformation("Email enviado com sucesso para {ToEmail}, resposta {}", emailModel.ToEmail, response.Body.ToString());
+            _logger.LogInformation("Email enviado com sucesso para {ToEmail}", emailModel.ToEmail);
             return true;
         }
     }

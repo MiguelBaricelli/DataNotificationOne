@@ -21,6 +21,7 @@ if (string.IsNullOrEmpty(getApiKey))
 builder.Services.AddScoped<IFinanceSummaryVarianceService,FinanceSummaryVarianceService>();
 builder.Services.AddScoped<IWeeklyDataForConsultService,WeeklyDataForConsultService>();
 builder.Services.AddScoped<IDataOverviewService, DataOverviewService>();
+builder.Services.AddScoped<IDailyConsultService, DailyConsultService>();
 builder.Services.AddScoped<IGeneralResponseService, GeneralResponseService>();
 builder.Services.AddScoped<IGenerateMessageDailyService,GenerateMessageDailyService>();
 builder.Services.AddScoped<IEmailExecutor, EmailExecutor>();

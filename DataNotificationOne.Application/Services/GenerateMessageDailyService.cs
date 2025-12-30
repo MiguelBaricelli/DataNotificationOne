@@ -1,16 +1,19 @@
 ﻿using DataNotificationOne.Application.Interfaces;
 using DataNotificationOne.Domain.Models.Email;
+using System.Text;
 
 namespace DataNotificationOne.Application.Services
 {
     public class GenerateMessageDailyService : IGenerateMessageDailyService
     {
         private readonly IFinanceSummaryVarianceService _financeSummaryVarianceService;
+        private readonly IDailyConsultService _dailyConsultService;
 
         public GenerateMessageDailyService(
-            IFinanceSummaryVarianceService financeSummaryVarianceService)
+            IFinanceSummaryVarianceService financeSummaryVarianceService, IDailyConsultService dailyConsultService)
         {
             _financeSummaryVarianceService = financeSummaryVarianceService;
+            _dailyConsultService = dailyConsultService;
         }
 
         public async Task<EmailModel> GenerateGenericDailyMessageAsync(string symbol, DateTime date, string toEmail)
@@ -22,7 +25,7 @@ namespace DataNotificationOne.Application.Services
             if (string.IsNullOrWhiteSpace(toEmail))
                 throw new ArgumentNullException("O email do destinatário é obrigatório.");
 
-            var data = await _financeSummaryVarianceService.GetFinanceSummaryVarianceAsync(symbol, date);
+            var data = await _dailyConsultService.GetAllDailys(symbol);
 
             if (data == null)
                 throw new Exception("Dados financeiros não encontrados para o símbolo fornecido.");
@@ -135,11 +138,6 @@ namespace DataNotificationOne.Application.Services
                         <tr><td>Mínima</td><td>{responseData.Low}</td></tr>
                         <tr><td>Fechamento</td><td>{responseData.Close}</td></tr>
                       </table>
-                      <div class='variation'>
-                        <strong>Tendência:</strong>
-                        {(responseData.IsAlta ? "<span class='badge-up'>Alta</span>" : "<span class='badge-down'>Baixa</span>")}
-                        — {responseData.MessageIsAlta}
-                      </div>
                       <div class='footer'>Este email foi gerado automaticamente pela sua API de notificações de mercado.</div>
                     </div>
                   </div>
@@ -154,6 +152,97 @@ namespace DataNotificationOne.Application.Services
                 Subject = $"Resumo diário do ativo {symbol.ToUpper()}",
                 Asset = symbol,
                 Date = date,
+                Content = html
+            };
+
+
+            return emailModel;
+        }
+
+
+        public async Task<EmailModel> GenerateLastTenGenericsDailyMessageAsync(string symbol, string toEmail)
+        {
+            if (string.IsNullOrWhiteSpace(symbol))
+                throw new ArgumentNullException("O símbolo é obrigatório.");
+            if (string.IsNullOrWhiteSpace(toEmail))
+                throw new ArgumentNullException("O email do destinatário é obrigatório.");
+
+            var data = await _dailyConsultService.GetLastTenDailys(symbol);
+
+            if (data == null)
+                throw new Exception("Dados financeiros não encontrados para o símbolo fornecido.");
+
+            // Monta o HTML com todos os dias
+            var rows = new StringBuilder();
+
+            foreach (var kvp in data)
+            {
+                var dia = kvp.Key; // yyyy-MM-dd
+                var valores = kvp.Value;
+
+                rows.AppendLine($@"
+                        <tr>
+                            <td>{dia}</td>
+                            <td>{valores.Open}</td>
+                            <td>{valores.High}</td>
+                            <td>{valores.Low}</td>
+                            <td>{valores.Close}</td>
+                        </tr>");
+                            }
+
+                            var html = $@"
+                <!DOCTYPE html>
+                <html lang='pt-BR'>
+                <head>
+                    <meta charset='UTF-8'>
+                    <style>
+                        body {{
+                            background-color: #f3f2f1;
+                            font-family: Segoe UI, Arial, sans-serif;
+                            color: #323130;
+                        }}
+                        table {{
+                            width: 100%;
+                            border-collapse: collapse;
+                        }}
+                        th, td {{
+                            padding: 8px;
+                            border-bottom: 1px solid #edebe9;
+                            text-align: center;
+                        }}
+                        th {{
+                            background-color: #faf9f8;
+                            font-weight: 600;
+                        }}
+                    </style>
+                </head>
+                <body>
+                    <h2>Resumo dos últimos 10 dias do ativo {symbol.ToUpper()}</h2>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Data</th>
+                                <th>Abertura</th>
+                                <th>Máxima</th>
+                                <th>Mínima</th>
+                                <th>Fechamento</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {rows}
+                        </tbody>
+                    </table>
+                    <div class='footer'>Este email foi gerado automaticamente pela sua API de notificações de mercado.</div>
+                </body>
+                </html>";
+
+
+            // Cria o modelo de email
+            var emailModel = new EmailModel
+            {
+                ToEmail = toEmail,
+                Subject = $"Resumo diário do ativo {symbol.ToUpper()}",
+                Asset = symbol,
                 Content = html
             };
 
