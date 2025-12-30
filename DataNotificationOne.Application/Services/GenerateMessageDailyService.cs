@@ -39,94 +39,94 @@ namespace DataNotificationOne.Application.Services
             var html = $@"
                 <!DOCTYPE html>
                 <html lang='pt-BR'>
-                <head>
+                 <head>
                     <meta charset='UTF-8'>
                     <meta name='viewport' content='width=device-width, initial-scale=1.0'>
                     <style>
-        body {{
-            margin: 10;
-            padding: 10;
-            background-color: #f3f2f1;
-            font-family: Segoe UI, Arial, sans-serif;
-            color: #323130;
-        }}
-        .container {{
-            width: 100%;
-            padding: 20px 0;
-            margin: 10px
-        }}
-        .card {{
-            width: 600px;
-            margin: 15px;
-            background-color: #ffffff;
-            border: 1px solid #edebe9;
-        }}
-        .header {{
-            padding: 20px 24px;
-            border-bottom: 1px solid #edebe9;
-            font-size: 18px;
-            font-weight: 600;
-            color: #323130;
-        }}
-        .content {{
-            padding: 24px;
-            font-size: 14px;
-            line-height: 1.6;
-        }}
-        .date {{
-            font-size: 16px;
-            color: #605e5c;
-            margin:20px;
-        }}
-        .symbol {{
-            font-weight: 600;
-            color: #005a9e;
-        }}
-        table {{
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 20px;
-        }}
-        td {{
-            padding: 8px 0;
-            border-bottom: 1px solid #edebe9;
-            font-size: 14px;
-        }}
-        td:last-child {{
-            text-align: right;
-            font-weight: 600;
-        }}
-        .variation {{
-            background-color: #faf9f8;
-            border-left: 4px solid #c8c6c4;
-            padding: 12px 16px;
-            font-size: 14px;
-            color: #323130;
-        }}
-        .badge-up {{
-            background-color: #dff6dd;
-            color: #107c10;
-            padding: 2px 8px;
-            font-size: 12px;
-            font-weight: 600;
-            border-radius: 2px;
-        }}
-        .badge-down {{
-            background-color: #fde7e9;
-            color: #a80000;
-            padding: 2px 8px;
-            font-size: 12px;
-            font-weight: 600;
-            border-radius: 2px;
-        }}
-        .footer {{
-            padding: 16px 24px;
-            border-top: 1px solid #edebe9;
-            font-size: 11px;
-            color: #605e5c;
-            text-align: center;
-        }}
-    </style>
+                    body {{
+                        margin: 10;
+                        padding: 10;
+                        background-color: #f3f2f1;
+                        font-family: Segoe UI, Arial, sans-serif;
+                        color: #323130;
+                    }}
+                    .container {{
+                        width: 100%;
+                        padding: 20px 0;
+                        margin: 10px
+                    }}
+                    .card {{
+                        width: 600px;
+                        margin: 15px;
+                        background-color: #ffffff;
+                        border: 1px solid #edebe9;
+                    }}
+                    .header {{
+                        padding: 20px 24px;
+                        border-bottom: 1px solid #edebe9;
+                        font-size: 18px;
+                        font-weight: 600;
+                        color: #323130;
+                    }}
+                    .content {{
+                        padding: 24px;
+                        font-size: 14px;
+                        line-height: 1.6;
+                    }}
+                    .date {{
+                        font-size: 16px;
+                        color: #605e5c;
+                        margin:20px;
+                    }}
+                    .symbol {{
+                        font-weight: 600;
+                        color: #005a9e;
+                    }}
+                    table {{
+                        width: 100%;
+                        border-collapse: collapse;
+                        margin-bottom: 20px;
+                    }}
+                    td {{
+                        padding: 8px 0;
+                        border-bottom: 1px solid #edebe9;
+                        font-size: 14px;
+                    }}
+                    td:last-child {{
+                        text-align: right;
+                        font-weight: 600;
+                    }}
+                    .variation {{
+                        background-color: #faf9f8;
+                        border-left: 4px solid #c8c6c4;
+                        padding: 12px 16px;
+                        font-size: 14px;
+                        color: #323130;
+                    }}
+                    .badge-up {{
+                        background-color: #dff6dd;
+                        color: #107c10;
+                        padding: 2px 8px;
+                        font-size: 12px;
+                        font-weight: 600;
+                        border-radius: 2px;
+                    }}
+                    .badge-down {{
+                        background-color: #fde7e9;
+                        color: #a80000;
+                        padding: 2px 8px;
+                        font-size: 12px;
+                        font-weight: 600;
+                        border-radius: 2px;
+                    }}
+                    .footer {{
+                        padding: 16px 24px;
+                        border-top: 1px solid #edebe9;
+                        font-size: 11px;
+                        color: #605e5c;
+                        text-align: center;
+                    }}
+                </style>
                 </head>
                 <body>
                   <div class='container'>
