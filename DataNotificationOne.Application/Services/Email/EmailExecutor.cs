@@ -55,5 +55,42 @@ namespace DataNotificationOne.Application.Services.Email
             return true;
 
         }
+
+        public async Task<bool> ExecuteEmailVarianceDailyAsync(InputEmailGenericDailyDto emailGenericDailyDto)
+        {
+            if (string.IsNullOrWhiteSpace(emailGenericDailyDto.Asset))
+            {
+                return false;
+            }
+            if (emailGenericDailyDto.Date == DateTime.MinValue)
+            {
+                return false;
+            }
+            if (string.IsNullOrWhiteSpace(emailGenericDailyDto.ToEmail))
+            {
+                return false;
+            }
+
+
+            var message = await _generateMessageDaily.GenerateDailyVarianceMessageAsync(emailGenericDailyDto.Asset, emailGenericDailyDto.Date, emailGenericDailyDto.ToEmail);
+            if (message == null)
+            {
+                _logger.LogError("Email message generation failed for symbol: {Symbol}, date: {Date}, toEmail: {ToEmail}", emailGenericDailyDto.Asset, emailGenericDailyDto.Date, emailGenericDailyDto.ToEmail);
+                return false;
+            }
+
+            bool sendEmail = await _sendGridIntegraion.SendEmailAsync(message);
+
+            if (!sendEmail)
+            {
+                _logger.LogError("{Classe} Não foi possível enviar para a integracao do SendGrid", nameof(EmailExecutor));
+                return false;
+            }
+
+            _logger.LogInformation("{Classe} Enviado com sucesso para a integracao do SendGrid", nameof(EmailExecutor));
+            return true;
+
+        }
     }
 }
+    

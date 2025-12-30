@@ -10,5 +10,7 @@ namespace DataNotificationOne.Application.Interfaces
     public interface IEmailExecutor
     {
         Task<bool> ExecuteEmailDailyAsync(InputEmailGenericDailyDto inputEmailGeneric);
+
+        Task<bool> ExecuteEmailVarianceDailyAsync(InputEmailGenericDailyDto emailGenericDailyDto);
     }
 }
