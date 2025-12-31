@@ -1,103 +1,525 @@
 ﻿using DataNotificationOne.Application.Interfaces;
-using DataNotificationOne.Domain.Interfaces.Infra;
+using DataNotificationOne.Domain.Models.Email;
+using System.Text;
 
 namespace DataNotificationOne.Application.Services
 {
     public class GenerateMessageDailyService : IGenerateMessageDailyService
     {
-        private readonly FinanceSummaryVarianceService _financeSummaryVarianceService;
+        private readonly IFinanceSummaryVarianceService _financeSummaryVarianceService;
+        private readonly IDailyConsultService _dailyConsultService;
 
-        public GenerateMessageDailyService(IAlphaVantageDailyConsumer alphaVantageDailyConsumer, FinanceSummaryVarianceService financeSummaryVarianceService)
+        public GenerateMessageDailyService(
+            IFinanceSummaryVarianceService financeSummaryVarianceService, IDailyConsultService dailyConsultService)
         {
             _financeSummaryVarianceService = financeSummaryVarianceService;
+            _dailyConsultService = dailyConsultService;
         }
 
-        public async Task<string> GenerateDailyVarianceMessageAsync(string symbol, DateTime date)
+        public async Task<EmailModel> GenerateGenericDailyMessageAsync(string symbol, DateTime date, string toEmail)
         {
             if (string.IsNullOrWhiteSpace(symbol))
-            {
                 throw new ArgumentNullException("O símbolo é obrigatório.");
-            }
-            var data = await _financeSummaryVarianceService.GetFinanceSummaryVarianceAsync(symbol, date);
+            if (date == default)
+                throw new ArgumentNullException("data nao esta correta");
+            if (string.IsNullOrWhiteSpace(toEmail))
+                throw new ArgumentNullException("O email do destinatário é obrigatório.");
 
-            string message = "O ativo {symbol} teve uma variação de {data.Variation}% hoje. ";
-
-            return message;
-        }
-
-        public async Task<string> GenerateCustomDailyMessageAsync(string symbol, DateTime date)
-        {
-            if (string.IsNullOrWhiteSpace(symbol))
-            {
-                throw new ArgumentNullException("O símbolo é obrigatório.");
-            }
-
-            var data = await _financeSummaryVarianceService.GetFinanceSummaryVarianceAsync(symbol, date);
+            var data = await _dailyConsultService.GetAllDailys(symbol);
 
             if (data == null)
-            {
                 throw new Exception("Dados financeiros não encontrados para o símbolo fornecido.");
-            }
 
             var dateKey = date.ToString("yyyy-MM-dd");
 
-            if (data.TryGetValue(dateKey, out var responseData))
-            {
+            if (!data.TryGetValue(dateKey, out var responseData))
                 throw new Exception("Dados financeiros não encontrados para a data fornecida.");
-            }
 
-            var message = $"O ativo {symbol} apresentou as seguintes variações hoje: " +
-                $"Abertura: {responseData.Open}%" +
-                $"Máxima: {responseData.High}%, " +
-                $"Mínima: {responseData.Low}%, " +
-                $"Fechamento: {responseData.Close}%. " +
-                $"A variação total foi de {responseData.Variation}%." +
-                $"Em Alta: {responseData.IsAlta}" +
-                $"Tendencia: {responseData.MessageIsAlta}";
+            // Monta o HTML
+            var html = $@"
+                <!DOCTYPE html>
+                <html lang='pt-BR'>
+                 <head>
+                    <meta charset='UTF-8'>
+                    <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+                    <style>
+                    body {{
+                        margin: 10;
+                        padding: 10;
+                        background-color: #f3f2f1;
+                        font-family: Segoe UI, Arial, sans-serif;
+                        color: #323130;
+                    }}
+                    .container {{
+                        width: 100%;
+                        padding: 20px 0;
+                        margin: 10px
+                    }}
+                    .card {{
+                        width: 600px;
+                        margin: 15px;
+                        background-color: #ffffff;
+                        border: 1px solid #edebe9;
+                    }}
+                    .header {{
+                        padding: 20px 24px;
+                        border-bottom: 1px solid #edebe9;
+                        font-size: 18px;
+                        font-weight: 600;
+                        color: #323130;
+                    }}
+                    .content {{
+                        padding: 24px;
+                        font-size: 14px;
+                        line-height: 1.6;
+                    }}
+                    .date {{
+                        font-size: 16px;
+                        color: #605e5c;
+                        margin:20px;
+                    }}
+                    .symbol {{
+                        font-weight: 600;
+                        color: #005a9e;
+                    }}
+                    table {{
+                        width: 100%;
+                        border-collapse: collapse;
+                        margin-bottom: 20px;
+                    }}
+                    td {{
+                        padding: 8px 0;
+                        border-bottom: 1px solid #edebe9;
+                        font-size: 14px;
+                    }}
+                    td:last-child {{
+                        text-align: right;
+                        font-weight: 600;
+                    }}
+                    .variation {{
+                        background-color: #faf9f8;
+                        border-left: 4px solid #c8c6c4;
+                        padding: 12px 16px;
+                        font-size: 14px;
+                        color: #323130;
+                    }}
+                    .badge-up {{
+                        background-color: #dff6dd;
+                        color: #107c10;
+                        padding: 2px 8px;
+                        font-size: 12px;
+                        font-weight: 600;
+                        border-radius: 2px;
+                    }}
+                    .badge-down {{
+                        background-color: #fde7e9;
+                        color: #a80000;
+                        padding: 2px 8px;
+                        font-size: 12px;
+                        font-weight: 600;
+                        border-radius: 2px;
+                    }}
+                    .footer {{
+                        padding: 16px 24px;
+                        border-top: 1px solid #edebe9;
+                        font-size: 11px;
+                        color: #605e5c;
+                        text-align: center;
+                    }}
+                </style>
+                </head>
+                <body>
+                  <div class='container'>
+                    <div class='card'>
+                      <div class='date'>No dia {date:yyyy-MM-dd}, o ativo <span class='symbol'>{symbol.ToUpper()}</span> apresentou as seguintes variações:</div>
+                      <table class='table'>
+                        <tr><td>Abertura</td><td>{responseData.Open}</td></tr>
+                        <tr><td>Máxima</td><td>{responseData.High}</td></tr>
+                        <tr><td>Mínima</td><td>{responseData.Low}</td></tr>
+                        <tr><td>Fechamento</td><td>{responseData.Close}</td></tr>
+                      </table>
+                      <div class='footer'>Este email foi gerado automaticamente pela sua API de notificações de mercado.</div>
+                    </div>
+                  </div>
+                </body>
+                </html>";
 
 
-            return message;
+            // Cria o modelo de email
+            var emailModel = new EmailModel
+            {
+                ToEmail = toEmail,
+                Subject = $"Resumo diário do ativo {symbol.ToUpper()}",
+                Asset = symbol,
+                Date = date,
+                Content = html
+            };
+
+
+            return emailModel;
         }
 
-        public async Task<string> GenerateCustomDailyMessageByClientAsync(string nameClient, string symbol, DateTime date)
+
+        public async Task<EmailModel> GenerateLastTenGenericsDailyMessageAsync(string symbol, string toEmail)
         {
             if (string.IsNullOrWhiteSpace(symbol))
-            {
                 throw new ArgumentNullException("O símbolo é obrigatório.");
-            }
+            if (string.IsNullOrWhiteSpace(toEmail))
+                throw new ArgumentNullException("O email do destinatário é obrigatório.");
 
-            if (string.IsNullOrWhiteSpace(date.ToString()))
-            {
-                throw new ArgumentNullException("A data é obrigatória.");
-            }
-
-            var data = await _financeSummaryVarianceService.GetFinanceSummaryVarianceAsync(symbol, date);
+            var data = await _dailyConsultService.GetLastTenDailys(symbol);
 
             if (data == null)
-            {
                 throw new Exception("Dados financeiros não encontrados para o símbolo fornecido.");
-            }
 
+            // Monta o HTML com todos os dias
+            var rows = new StringBuilder();
+
+            foreach (var kvp in data)
+            {
+                var dia = kvp.Key; // yyyy-MM-dd
+                var valores = kvp.Value;
+
+                rows.AppendLine($@"
+                        <tr>
+                            <td>{dia}</td>
+                            <td>{valores.Open}</td>
+                            <td>{valores.High}</td>
+                            <td>{valores.Low}</td>
+                            <td>{valores.Close}</td>
+                        </tr>");
+                            }
+
+                            var html = $@"
+                <!DOCTYPE html>
+                <html lang='pt-BR'>
+                <head>
+                    <meta charset='UTF-8'>
+                    <style>
+                        body {{
+                            background-color: #f3f2f1;
+                            font-family: Segoe UI, Arial, sans-serif;
+                            color: #323130;
+                        }}
+                        table {{
+                            width: 100%;
+                            border-collapse: collapse;
+                        }}
+                        th, td {{
+                            padding: 8px;
+                            border-bottom: 1px solid #edebe9;
+                            text-align: center;
+                        }}
+                        th {{
+                            background-color: #faf9f8;
+                            font-weight: 600;
+                        }}
+                    </style>
+                </head>
+                <body>
+                    <h2>Resumo dos últimos 10 dias do ativo {symbol.ToUpper()}</h2>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Data</th>
+                                <th>Abertura</th>
+                                <th>Máxima</th>
+                                <th>Mínima</th>
+                                <th>Fechamento</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {rows}
+                        </tbody>
+                    </table>
+                    <div class='footer'>Este email foi gerado automaticamente pela sua API de notificações de mercado.</div>
+                </body>
+                </html>";
+
+
+            // Cria o modelo de email
+            var emailModel = new EmailModel
+            {
+                ToEmail = toEmail,
+                Subject = $"Resumo diário do ativo {symbol.ToUpper()}",
+                Asset = symbol,
+                Content = html
+            };
+
+
+            return emailModel;
+        }
+
+
+
+        public async Task<EmailModel> GenerateCustomDailyEmailByClientAsync(string clientName, string asset, DateTime date, string toEmail)
+        {
+            var data = await _financeSummaryVarianceService.GetFinanceSummaryVarianceAsync(asset, date);
             var keyDate = date.ToString("yyyy-MM-dd");
 
             if (!data.TryGetValue(keyDate, out var responseData))
-            {
                 throw new Exception("Dados financeiros não encontrados para a data fornecida.");
-            }
 
 
-            var message = $"Olá {nameClient}, \n" +
-                $"No dia {keyDate}, " +
-                $"O ativo {symbol} apresentou as seguintes variações hoje: \n" +
-                $"Abertura: {responseData.Open}%, \n" +
-                $"Máxima: {responseData.High}%, \n" +
-                $"Mínima: {responseData.Low}%, \n" +
-                $"Fechamento: {responseData.Close}%. \n" +
-                $"A variação total foi de {responseData.Variation}%.\n" +
-                $"Em Alta: {responseData.IsAlta}" +
-                $"{responseData.MessageIsAlta}";
+            var html = $@"
+            <!DOCTYPE html>
+                <html lang='pt-BR'>
+                <head>
+                    <meta charset='UTF-8'>
+                    <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+                    <style>
+                            body {{
+                                margin: 10;
+                                padding: 10;
+                                background-color: #f3f2f1;
+                                font-family: Segoe UI, Arial, sans-serif;
+                                color: #323130;
+                            }}
+                            .container {{
+                                width: 100%;
+                                padding: 20px 0;
+                                margin: 10px
+                            }}
+                            .card {{
+                                width: 600px;
+                                margin: 15px;
+                                background-color: #ffffff;
+                                border: 1px solid #edebe9;
+                            }}
+                            .header {{
+                                padding: 20px 24px;
+                                border-bottom: 1px solid #edebe9;
+                                font-size: 18px;
+                                font-weight: 600;
+                                color: #323130;
+                            }}
+                            .content {{
+                                padding: 24px;
+                                font-size: 14px;
+                                line-height: 1.6;
+                            }}
+                            .date {{
+                                font-size: 16px;
+                                color: #605e5c;
+                                margin:20px;
+                            }}
+                            .symbol {{
+                                font-weight: 600;
+                                color: #005a9e;
+                            }}
+                            table {{
+                                width: 100%;
+                                border-collapse: collapse;
+                                margin-bottom: 20px;
+                            }}
+                            td {{
+                                padding: 8px 0;
+                                border-bottom: 1px solid #edebe9;
+                                font-size: 14px;
+                            }}
+                            td:last-child {{
+                                text-align: right;
+                                font-weight: 600;
+                            }}
+                            .variation {{
+                                background-color: #faf9f8;
+                                border-left: 4px solid #c8c6c4;
+                                padding: 12px 16px;
+                                font-size: 14px;
+                                color: #323130;
+                            }}
+                            .badge-up {{
+                                background-color: #dff6dd;
+                                color: #107c10;
+                                padding: 2px 8px;
+                                font-size: 12px;
+                                font-weight: 600;
+                                border-radius: 2px;
+                            }}
+                            .badge-down {{
+                                background-color: #fde7e9;
+                                color: #a80000;
+                                padding: 2px 8px;
+                                font-size: 12px;
+                                font-weight: 600;
+                                border-radius: 2px;
+                            }}
+                            .footer {{
+                                padding: 16px 24px;
+                                border-top: 1px solid #edebe9;
+                                font-size: 11px;
+                                color: #605e5c;
+                                text-align: center;
+                            }}
+                        </style>
 
-            return message;
+            </head>
+            <body>
+              <div class='container'>
+                <div class='card'>
+                  <div class='greet'>Olá {clientName},</div>
+                  <div class='date'>No dia {date:yyyy-MM-dd}, o ativo <span class='symbol'>{asset.ToUpper()}</span> apresentou as seguintes variações:</div>
+                  <table class='table'>
+                    <tr><td>Abertura</td><td>{responseData.Open}</td></tr>
+                    <tr><td>Máxima</td><td>{responseData.High}</td></tr>
+                    <tr><td>Mínima</td><td>{responseData.Low}</td></tr>
+                    <tr><td>Fechamento</td><td>{responseData.Close}</td></tr>
+                  </table>
+                  <div class='variation'>
+                    <strong>Tendência:</strong>
+                    {(responseData.IsAlta ? "<span class='badge-up'>Alta</span>" : "<span class='badge-down'>Baixa</span>")}
+                    — {responseData.MessageIsAlta}
+                  </div>
+                  <div class='footer'>Este email foi gerado automaticamente pela sua API de notificações de mercado.</div>
+                </div>
+              </div>
+            </body>
+            </html>";
+
+            var emailModelMessage = new EmailModel
+            {
+                ToEmail = toEmail,
+                Subject = $"Resumo diário do ativo {asset.ToUpper()}",
+                Asset = asset,
+                Date = date,
+                Content = html
+            };
+
+            return emailModelMessage;
+        }
+        public async Task<EmailModel> GenerateDailyVarianceMessageAsync(string asset, DateTime date, string toEmail)
+        {
+            var data = await _financeSummaryVarianceService.GetFinanceSummaryVarianceAsync(asset, date);
+            var keyDate = date.ToString("yyyy-MM-dd");
+
+            if (!data.TryGetValue(keyDate, out var responseData))
+                throw new Exception("Dados financeiros não encontrados para a data fornecida.");
+
+
+            var html = $@"
+                <!DOCTYPE html>
+                <html lang='pt-BR'>
+                <head>
+                    <meta charset='UTF-8'>
+                    <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+                    <style>
+        body {{
+            margin: 10;
+            padding: 10;
+            background-color: #f3f2f1;
+            font-family: Segoe UI, Arial, sans-serif;
+            color: #323130;
+        }}
+        .container {{
+            width: 100%;
+            padding: 20px 0;
+            margin: 10px
+        }}
+        .card {{
+            width: 600px;
+            margin: 15px;
+            background-color: #ffffff;
+            border: 1px solid #edebe9;
+        }}
+        .header {{
+            padding: 20px 24px;
+            border-bottom: 1px solid #edebe9;
+            font-size: 18px;
+            font-weight: 600;
+            color: #323130;
+        }}
+        .content {{
+            padding: 24px;
+            font-size: 14px;
+            line-height: 1.6;
+        }}
+        .date {{
+            font-size: 16px;
+            color: #605e5c;
+            margin:20px;
+        }}
+        .symbol {{
+            font-weight: 600;
+            color: #005a9e;
+        }}
+        table {{
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }}
+        td {{
+            padding: 8px 0;
+            border-bottom: 1px solid #edebe9;
+            font-size: 14px;
+        }}
+        td:last-child {{
+            text-align: right;
+            font-weight: 600;
+        }}
+        .variation {{
+            background-color: #faf9f8;
+            border-left: 4px solid #c8c6c4;
+            padding: 12px 16px;
+            font-size: 14px;
+            color: #323130;
+        }}
+        .badge-up {{
+            background-color: #dff6dd;
+            color: #107c10;
+            padding: 2px 8px;
+            font-size: 12px;
+            font-weight: 600;
+            border-radius: 2px;
+        }}
+        .badge-down {{
+            background-color: #fde7e9;
+            color: #a80000;
+            padding: 2px 8px;
+            font-size: 12px;
+            font-weight: 600;
+            border-radius: 2px;
+        }}
+        .footer {{
+            padding: 16px 24px;
+            border-top: 1px solid #edebe9;
+            font-size: 11px;
+            color: #605e5c;
+            text-align: center;
+        }}
+    </style>
+                </head>
+                <body>
+                  <div class='container'>
+                    <div class='card'>
+                      <div class='date'>No dia {date:yyyy-MM-dd}, o ativo <span class='symbol'>{asset.ToUpper()}</span> apresentou as seguintes variações:</div>
+                      <table class='table'>
+                        <tr><td>Abertura</td><td>{responseData.Open}</td></tr>
+                        <tr><td>Máxima</td><td>{responseData.High}</td></tr>
+                        <tr><td>Mínima</td><td>{responseData.Low}</td></tr>
+                        <tr><td>Fechamento</td><td>{responseData.Close}</td></tr>
+                        <tr><td><strong>Variação total</strong></td><td><strong>{responseData.Variation}%</strong></td></tr>
+                      </table>
+                      <div class='variation'>
+                        <strong>Tendência:</strong>
+                        {(responseData.IsAlta ? "<span class='badge-up'>Alta</span>" : "<span class='badge-down'>Baixa</span>")}
+                        — {responseData.MessageIsAlta}
+                      </div>
+                      <div class='footer'>Este email foi gerado automaticamente pela sua API de notificações de mercado.</div>
+                    </div>
+                  </div>
+                </body>
+                </html>";
+
+            var emailModelMessage = new EmailModel
+            {
+                ToEmail = toEmail,
+                Subject = $"Variação diário do ativo {asset}",
+                Asset = asset,
+                Date = date,
+                Content = html
+            };
+
+            return emailModelMessage;
         }
     }
 }

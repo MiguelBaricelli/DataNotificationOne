@@ -1,5 +1,6 @@
 ﻿using DataNotificationOne.Domain.Interfaces.Infra;
 using DataNotificationOne.Infrastructure.ExternalApis;
+using DataNotificationOne.Infrastructure.ExternalApis.Email;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace DataNotificationOne.Infrastructure.DependencyInjection
@@ -15,6 +16,7 @@ namespace DataNotificationOne.Infrastructure.DependencyInjection
             services.AddScoped<IAlphaVantageWeeklyConsumer, AlphaVantageWeeklyConsumer>();
             services.AddScoped<IAlphaVantageOverviewConsumer, AlphaVantageOverviewConsumer>();
             services.AddScoped<IAlphaVantageGeneralConsumer, AlphaVantageGeneralConsumer>();
+            services.AddScoped<ISendGridIntegration, SendGridIntegration>();
 
 
             return services;

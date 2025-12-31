@@ -1,4 +1,5 @@
-﻿using DataNotificationOne.Application.Services;
+﻿using DataNotificationOne.Application.Interfaces;
+using DataNotificationOne.Application.Services;
 using DataNotificationOne.Domain.Models;
 using DataNotificationOne.Domain.Models.Enums;
 using Microsoft.AspNetCore.Mvc;
@@ -10,9 +11,9 @@ namespace DataNotificationOne.Controllers.V1
     public class GeneralController : ControllerBase
     {
 
-        private readonly GeneralResponseService _generalResponseService;
+        private readonly IGeneralResponseService _generalResponseService;
 
-        public GeneralController(GeneralResponseService generateResponseService)
+        public GeneralController(IGeneralResponseService generateResponseService)
         {
             _generalResponseService = generateResponseService;
 
@@ -79,6 +80,7 @@ namespace DataNotificationOne.Controllers.V1
                 {
                     return NotFound("Não encontrado nenhum dado");
                 }
+
 
                 return Ok(response);
             }

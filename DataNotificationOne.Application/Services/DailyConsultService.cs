@@ -1,11 +1,6 @@
 ﻿using DataNotificationOne.Application.Interfaces;
 using DataNotificationOne.Domain.Interfaces.Infra;
 using DataNotificationOne.Domain.Services;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DataNotificationOne.Application.Services
 {
@@ -13,7 +8,7 @@ namespace DataNotificationOne.Application.Services
     {
 
         private readonly IAlphaVantageDailyConsumer _vantageDailyConsumer;
-        
+
         public DailyConsultService(IAlphaVantageDailyConsumer vantageDailyConsumer)
         {
             _vantageDailyConsumer = vantageDailyConsumer;
@@ -22,13 +17,13 @@ namespace DataNotificationOne.Application.Services
         public async Task<Dictionary<string, AlphaVantageDailyDto>> GetAllDailys(string symbol)
         {
 
-            if(string.IsNullOrEmpty(symbol))
+            if (string.IsNullOrEmpty(symbol))
             {
                 throw new ArgumentException("O símbolo não pode ser nulo ou vazio.", nameof(symbol));
             }
             var response = await _vantageDailyConsumer.TimeSeriesDailyConsumer(symbol);
 
-            if(response == null || response.TimeSeriesDaily == null)
+            if (response == null || response.TimeSeriesDaily == null)
             {
                 throw new Exception("Resposta inválida do consumidor Alpha Vantage.");
             }
@@ -48,7 +43,7 @@ namespace DataNotificationOne.Application.Services
                 .Take(10)
                 .ToDictionary(entry => entry.Key, entry => entry.Value);
 
-            if(lastTenDailys == null || lastTenDailys.Count == 0)
+            if (lastTenDailys == null || lastTenDailys.Count == 0)
             {
                 throw new Exception("Resposta inválida do consumidor Alpha Vantage.");
             }

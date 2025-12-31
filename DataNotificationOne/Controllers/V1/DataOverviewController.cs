@@ -1,4 +1,5 @@
 ﻿using DataNotificationOne.Application.Dtos;
+using DataNotificationOne.Application.Interfaces;
 using DataNotificationOne.Application.Services;
 using DataNotificationOne.Domain.Models;
 using Microsoft.AspNetCore.Mvc;
@@ -9,9 +10,9 @@ namespace DataNotificationOne.Controllers.V1
     [Route("api/v1/[controller]")]
     public class DataOverviewController : ControllerBase
     {
-        private readonly DataOverviewService _dataOverviewService;
+        private readonly IDataOverviewService _dataOverviewService;
 
-        public DataOverviewController(DataOverviewService dataOverviewService)
+        public DataOverviewController(IDataOverviewService dataOverviewService)
         {
             _dataOverviewService = dataOverviewService;
         }
