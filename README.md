@@ -20,20 +20,20 @@ A API segue os princípios da **Clean Architecture**, garantindo:
 
 ## 📚 Documentação da API
 
-### 🔹 Controller: `FinanceDataController`
+### 🔹 Controller: `DataDailyController`
 
 Responsável por expor endpoints relacionados a:
-- Consulta de dados financeiros semanais
+- Consulta de dados financeiros diários
 - Análise estatística de ativos
 - Cálculo de variância e tendência de mercado
 
 ---
 
-## 🔸 GET `api/FinanceData/GetVariationAsset/{ativo}`
+## 🔸 GET `api/FinanceData/GetVariationAsset/{ativo}/{date}`
 
 ### 📌 Descrição
 
-Calcula e retorna a **variância dos preços** de um ativo financeiro com base nos valores:
+Calcula e retorna a **variância dos preços** de um ativo financeiro em determinada data com base nos valores:
 
 - Open
 - High
@@ -68,14 +68,24 @@ Além disso, informa se o ativo está **em alta** com base nos dados analisados.
   "high": 311.36,
   "low": 295.70,
   "close": 300.98,
-  "volume": 26507574
+  "volume": 26507574,
+  "IsAlta": True or False
 }
 ```
+
+### 🔹 Controller: `DataWeeklyController`
+
+Responsável por expor endpoints relacionados a:
+- Consulta de dados financeiros semanais
+- Recuperação dos últimos registros de mercado
+- Obtenção de dados de uma semana específica para determinado ativo
+- **OBS: Consultas sempre feitas com datas de sexta-feiras**
+
 ## 🔸 GET `/api/FinanceData/Last10Weeks/{ativo}`
 
 ### 📌 Descrição
 
-Retorna os **dados financeiros da semana mais recente** para o ativo informado.
+Retorna os **dados semanais** mais recentes de um ativo financeiro, limitando-se às **últimas 10 semanas** disponíveis.
 
 ---
 
@@ -93,20 +103,32 @@ Retorna os **dados financeiros da semana mais recente** para o ativo informado.
 |------|----------|
 | 200 OK | Retorna um objeto `FinanceDataModel` |
 | 400 Bad Request | Ativo não informado |
-| 404 Not Found | Nenhum dado retornado pelo serviço |
+| 404 Not Found | Nenhum dado encontrado |
 
 ---
 
 ### 🧾 Exemplo de Resposta
 
 ```json
-{
-  "open": 308.98,
-  "high": 311.36,
-  "low": 295.70,
-  "close": 300.98,
-  "volume": 26507574
-}
+[
+  {
+    "date": "2025-12-05",
+    "open": 308.98,
+    "high": 311.36,
+    "low": 295.70,
+    "close": 300.98,
+    "volume": 26507574
+  },
+  {
+    "date": "2025-11-28",
+    "open": 310.10,
+    "high": 315.00,
+    "low": 305.00,
+    "close": 312.50,
+    "volume": 19876543
+  }
+]
+
 
 ```
 
@@ -145,10 +167,11 @@ Retorna os **dados financeiros de uma semana específica** para o ativo informad
 ### 🧾 Exemplo de Resposta — **200 OK**
 
 ```json
-{
-  "open": 310.20,
-  "high": 315.00,
-  "low": 305.80,
-  "close": 312.45,
-  "volume": 27890011
+"2025-12-05" : {
+  "open": 308.98,
+  "high": 311.36,
+  "low": 295.70,
+  "close": 300.98,
+  "volume": 26507574
 }
+
