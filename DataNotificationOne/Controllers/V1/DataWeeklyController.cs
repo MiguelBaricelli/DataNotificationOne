@@ -1,4 +1,5 @@
 ﻿using DataNotificationOne.Application;
+using DataNotificationOne.Application.Interfaces;
 using DataNotificationOne.Application.Services;
 using DataNotificationOne.Domain.Models;
 using Microsoft.AspNetCore.Mvc;
@@ -11,9 +12,9 @@ namespace DataNotificationOne.Controllers.V1
     public class DataWeeklyController : ControllerBase
     {
 
-        private readonly WeeklyDataForConsultService _getWeeklyDataForConsultService;
+        private readonly IWeeklyDataForConsultService _getWeeklyDataForConsultService;
 
-        public DataWeeklyController(WeeklyDataForConsultService getWeeklyDataForConsultService)
+        public DataWeeklyController(IWeeklyDataForConsultService getWeeklyDataForConsultService)
         {
             _getWeeklyDataForConsultService = getWeeklyDataForConsultService;
         }

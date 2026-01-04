@@ -1,10 +1,11 @@
 ﻿using DataNotificationOne.Application.Dtos;
+using DataNotificationOne.Application.Interfaces;
 using DataNotificationOne.Domain.Interfaces.Infra;
 using DataNotificationOne.Domain.Models;
 
 namespace DataNotificationOne.Application.Services
 {
-    public class DataOverviewService
+    public class DataOverviewService : IDataOverviewService
     {
 
         private readonly IAlphaVantageOverviewConsumer _alphaVantageOverviewConsumer;

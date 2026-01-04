@@ -7,6 +7,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="BuildTemplates\**" />
+    <EmbeddedResource Remove="BuildTemplates\**" />
+    <None Remove="BuildTemplates\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Compile Remove="Interfaces\IAlphaVantageClient.cs" />
     <Compile Remove="Models\WeeklyTimeSeriesResponseModel.cs" />
   </ItemGroup>

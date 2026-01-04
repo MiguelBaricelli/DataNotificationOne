@@ -8,12 +8,10 @@ namespace DataNotificationOne.Application.Services
     public class WeeklyDataForConsultService : IWeeklyDataForConsultService
     {
 
-        private readonly HttpClient _httpClient;
         private readonly IAlphaVantageWeeklyConsumer _consumer;
 
-        public WeeklyDataForConsultService(HttpClient httpClient, IAlphaVantageWeeklyConsumer consumer)
+        public WeeklyDataForConsultService(IAlphaVantageWeeklyConsumer consumer)
         {
-            _httpClient = httpClient;
             _consumer = consumer;
         }
 

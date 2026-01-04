@@ -12,5 +12,7 @@ namespace DataNotificationOne.Application.Interfaces
         Task<Dictionary<string, AlphaVantageDailyDto>> GetAllDailys(string symbol);
 
         Task<Dictionary<string, AlphaVantageDailyDto>> GetLastTenDailys(string symbol);
+
+        Task<Dictionary<string, AlphaVantageDailyDto>> GetLastTwentyDailys(string symbol);
     }
 }
