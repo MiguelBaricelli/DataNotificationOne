@@ -6,7 +6,7 @@ using DataNotificationOne.Domain.Models;
 using DataNotificationOne.Domain.Services;
 
 
-namespace DataNotificationOne.Application
+namespace DataNotificationOne.Application.Services.Daily
 {
     public class FinanceSummaryVarianceService : IFinanceSummaryVarianceService
     {
@@ -32,25 +32,25 @@ namespace DataNotificationOne.Application
             if (!request.TimeSeriesDaily.TryGetValue(dateKey, out var dailyData))
                 throw new Exception($"Nenhum dado foi encontrado para data {dateKey}");
 
-            
+
             bool isAlta;
             if (dailyData.Close.ParseDecimal() > dailyData.Open.ParseDecimal())
             {
 
                 isAlta = true;
-          
+
             }
             else
             {
                 isAlta = false;
-                
+
             }
 
             var variation = AssetVariation(dailyData.Close.ParseDecimal(), dailyData.Open.ParseDecimal());
 
             var finnanceSummaryDto = new FinanceSummaryDto
             {
-                
+
                 Open = dailyData.Open.ParseDecimal(),
                 High = dailyData.High.ParseDecimal(),
                 Low = dailyData.Low.ParseDecimal(),
@@ -74,7 +74,7 @@ namespace DataNotificationOne.Application
         {
 
             decimal variation =
-             Math.Round(((close - open) / open) * 100, 2);
+             Math.Round((close - open) / open * 100, 2);
 
             return variation;
 

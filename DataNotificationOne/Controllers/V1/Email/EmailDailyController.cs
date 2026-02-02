@@ -2,7 +2,7 @@
 using DataNotificationOne.Application.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
-namespace DataNotificationOne.Controllers.V1
+namespace DataNotificationOne.Controllers.V1.Email
 {
     [ApiController]
     [Route("api/v1/[controller]")]

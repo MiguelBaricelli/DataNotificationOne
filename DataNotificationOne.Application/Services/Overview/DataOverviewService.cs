@@ -3,7 +3,7 @@ using DataNotificationOne.Application.Interfaces;
 using DataNotificationOne.Domain.Interfaces.Infra;
 using DataNotificationOne.Domain.Models;
 
-namespace DataNotificationOne.Application.Services
+namespace DataNotificationOne.Application.Services.Overview
 {
     public class DataOverviewService : IDataOverviewService
     {

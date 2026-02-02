@@ -4,7 +4,7 @@ using DataNotificationOne.Domain.Models;
 using DataNotificationOne.Domain.Models.Enums;
 using Microsoft.AspNetCore.Mvc;
 
-namespace DataNotificationOne.Controllers.V1
+namespace DataNotificationOne.Controllers.V1.General
 {
     [ApiController]
     [Route("api/v1")]
