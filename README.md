@@ -4,6 +4,19 @@ API desenvolvida em **.NET**, seguindo os princípios da **Clean Architecture**,
 
 A aplicação integra-se com **APIs externas** para consumo, processamento e análise de dados financeiros, oferecendo endpoints claros e bem definidos para consulta semanal e análise estatística de ativos.
 
+## **Nova Funcionalidade: API de E-mails Dinâmicos**
+
+Agora você pode enviar e-mails personalizados diretamente pela nossa API através do endpoint POST /sendEmail.
+
+Como usar:
+
+-Defina um modelo de mensagem com placeholders (ex: {nome}).
+
+-Faça uma chamada para a API informando o destinatário, o modelo e os valores para substituir os placeholders.
+
+-Pronto! O e-mail será enviado com o conteúdo personalizado.
+
+Ideal para notificações, alertas e comunicações automatizadas com seus usuários.
 ---
 
 ## 🧱 Arquitetura
@@ -174,4 +187,43 @@ Retorna os **dados financeiros de uma semana específica** para o ativo informad
   "close": 300.98,
   "volume": 26507574
 }
+```
+# Envio de Email personalizado
+**Funcionalidade: Envio de E-mails Dinâmicos via API!!**
 
+Nossa API oferece um endpoint dedicado para o envio de e-mails personalizados. Integradores podem utilizar este recurso para:
+
+-Enviar e-mails para destinatários específicos.
+
+-Definir o conteúdo da mensagem de forma flexível, suportando parâmetros dinâmicos no corpo do texto.
+
+-Personalizar cada e-mail com dados específicos do usuário ou contexto (como nome, número de pedido, links únicos, etc.).
+
+**Como funciona:**
+
+Sua aplicação faz uma requisição POST para o endpoint /sendEmail.
+
+No corpo da requisição (payload), você envia:
+
+-recipient: Endereço de e-mail do destinatário.
+
+-messageTemplate: O texto base da mensagem, que pode conter marcadores para personalização (ex: Olá, {nome}! Seu pedido {codigoPedido} foi aprovado.).
+
+-parameters: Um objeto JSON com os pares chave-valor para substituir os marcadores dinâmicos (ex: {"nome": "João Silva", "codigoPedido": "12345"}).
+
+Exemplo de Uso:
+
+```json
+POST /api/v1/SendNotification/sendEmail
+{
+  "ToEmail": "cliente@email.com",
+  "subject": "Atualização do Seu Pedido",
+  "message": "Prezado(a) {cliente_nome}, informamos que o pedido #{pedido_id} está {pedido_status}. Acesse {link_acompanhamento} para detalhes.",
+  "parameters": {
+    "cliente_nome": "Maria Santos",
+    "pedido_id": "78910",
+    "pedido_status": "em transporte",
+    "link_acompanhamento": "https://meusite.com/track/78910"
+  }
+}
+```
