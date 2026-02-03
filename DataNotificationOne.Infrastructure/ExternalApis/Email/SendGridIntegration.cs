@@ -15,11 +15,11 @@ namespace DataNotificationOne.Infrastructure.ExternalApis.Email
         private readonly ILogger<SendGridIntegration> _logger;
 
 
-        public SendGridIntegration(IConfiguration config, ILogger<SendGridIntegration> logger, IGenerateMessageDailyService generateMessageDaily)
+        public SendGridIntegration(IConfiguration config, ILogger<SendGridIntegration> logger)
         {
             _config = config;
             _logger = logger;
-            _apiKey = _config["ApiKeys:SendGrid"]
+            _apiKey = _config["ApiKeys:SENDGRID_API_KEY"]
                 ?? throw new Exception("API Key SendGrid não configurada");
         }
 

@@ -1,4 +1,6 @@
+using DataNotificationOne.Application.Interfaces;
 using DataNotificationOne.Application.Services.Daily;
+using DataNotificationOne.Application.Services.Email;
 using DataNotificationOne.Application.Services.EmailMessage;
 using DataNotificationOne.Application.Services.General;
 using DataNotificationOne.Application.Services.Overview;
@@ -28,11 +30,14 @@ if (string.IsNullOrEmpty(getApiKey))
     throw new ArgumentException("Chave da api Alpha Vantage não encontrada no User Secrets");
 }
 
-builder.Services.AddScoped<FinanceSummaryVarianceService>();
-builder.Services.AddScoped<WeeklyDataForConsultService>();
-builder.Services.AddScoped<DataOverviewService>();
-builder.Services.AddScoped<GeneralResponseService>();
-builder.Services.AddScoped<GenerateMessageDailyService>();
+builder.Services.AddScoped<IFinanceSummaryVarianceService, FinanceSummaryVarianceService>();
+builder.Services.AddScoped<IWeeklyDataForConsultService, WeeklyDataForConsultService>();
+builder.Services.AddScoped<IDataOverviewService, DataOverviewService>();
+builder.Services.AddScoped<IGeneralResponseService, GeneralResponseService>();
+builder.Services.AddScoped<IGenerateMessageDailyService, GenerateMessageDailyService>();
+builder.Services.AddScoped<IDailyConsultService, DailyConsultService>();
+builder.Services.AddScoped<IEmailExecutor, EmailExecutor>();
+
 
 
 
