@@ -8,12 +8,13 @@ namespace DataNotificationOne.Application.Dtos.DtosInputEmail
 {
     public class SendEmailModel
     {
-
-        public required string Asset { get; set; } 
+        public required string CorrelationId { get; set; }
+        public string Asset { get; set; } = string.Empty;
         public required DateTime Date { get; set; }
-        public string ToEmail { get; set; } = string.Empty;
-        public string FromEmail { get; set; } = string.Empty;
-        public string Message { get; set; } = string.Empty;
+        public required string ToEmail { get; set; }
+        public required string Subject { get; set; } = string.Empty;
+        public required string Message { get; set; } = string.Empty;
+        public List<Dictionary<string, string>> Parameters { get; set; } 
 
     }
 }

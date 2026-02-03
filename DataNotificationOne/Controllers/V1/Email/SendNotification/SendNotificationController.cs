@@ -1,25 +1,54 @@
-﻿using Microsoft.AspNetCore.Http.HttpResults;
+﻿using DataNotificationOne.Application.Dtos.DtosInputEmail;
+using DataNotificationOne.Application.Services.EmailMessage;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DataNotificationOne.Controllers.V1.Email.SendNotification
 {
     [ApiController]
     [Route("api/v1/[controller]")]
-    public class SendNotificationController
+    public class SendNotificationController : ControllerBase
     {
         ILogger<SendNotificationController> _logger;
+        private readonly GenerateMessageNotificationEmail _generateMessageNotificationEmail;
 
-        public SendNotificationController(ILogger<SendNotificationController> logger)
+        public SendNotificationController(ILogger<SendNotificationController> logger,
+            GenerateMessageNotificationEmail generateMessageNotificationEmail)
         {
             _logger = logger;
+            _generateMessageNotificationEmail = generateMessageNotificationEmail;
         }
 
         [HttpPost("sendEmail")]
         [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
-        public Task<IActionResult> Post()
+        [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(string), StatusCodes.Status500InternalServerError)]
+        [HttpPost]
+        public async Task<ActionResult<bool>> Post([FromBody] SendEmailModel sendEmailModel)
         {
-            _logger.LogInformation("Iniciando envio de email");
-            return Ok("Notification Service is running.");
+            try
+            {
+                _logger.LogInformation("Iniciando envio de email");
+
+                var isSend = await _generateMessageNotificationEmail
+                    .BuildNotificationMessage(sendEmailModel);
+
+                if (!isSend)
+                {
+                    return BadRequest("Erro ao enviar email");
+                }
+
+                return Ok(true);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erro ao enviar email");
+
+                return StatusCode(
+                    StatusCodes.Status500InternalServerError,
+                    "Erro interno ao processar a requisição"
+                );
+            }
         }
+
     }
 }

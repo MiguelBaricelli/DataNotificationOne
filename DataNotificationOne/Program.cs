@@ -37,6 +37,7 @@ builder.Services.AddScoped<IGeneralResponseService, GeneralResponseService>();
 builder.Services.AddScoped<IGenerateMessageDailyService, GenerateMessageDailyService>();
 builder.Services.AddScoped<IDailyConsultService, DailyConsultService>();
 builder.Services.AddScoped<IEmailExecutor, EmailExecutor>();
+builder.Services.AddScoped<GenerateMessageNotificationEmail>();
 
 
 
