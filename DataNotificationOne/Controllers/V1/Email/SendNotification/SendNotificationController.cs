@@ -1,5 +1,6 @@
 ﻿using DataNotificationOne.Application.Dtos.DtosInputEmail;
 using DataNotificationOne.Application.Services.EmailMessage;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DataNotificationOne.Controllers.V1.Email.SendNotification
@@ -18,6 +19,7 @@ namespace DataNotificationOne.Controllers.V1.Email.SendNotification
             _generateMessageNotificationEmail = generateMessageNotificationEmail;
         }
 
+        [Authorize]
         [HttpPost("sendEmail")]
         [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
