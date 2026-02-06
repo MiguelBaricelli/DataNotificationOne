@@ -1,5 +1,6 @@
 ﻿using DataNotificationOne.Application.Dtos.DtosInputEmail;
 using DataNotificationOne.Application.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DataNotificationOne.Controllers.V1.Email
@@ -20,6 +21,7 @@ namespace DataNotificationOne.Controllers.V1.Email
             _logger = iLogger;
         }
 
+        [Authorize]
         [HttpPost("sendGenericEmail")]
         [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(bool), StatusCodes.Status400BadRequest)]
@@ -54,7 +56,7 @@ namespace DataNotificationOne.Controllers.V1.Email
             }
         }
 
-
+        [Authorize]
         [HttpPost("sendLastTenDailyEmail")]
         [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(bool), StatusCodes.Status400BadRequest)]
@@ -87,6 +89,7 @@ namespace DataNotificationOne.Controllers.V1.Email
             }
         }
 
+        [Authorize]
         [HttpPost("sendVarianceDailyEmail")]
         [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(bool), StatusCodes.Status400BadRequest)]

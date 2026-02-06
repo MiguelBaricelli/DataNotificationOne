@@ -70,15 +70,9 @@ builder.Services
             ),
             ClockSkew = TimeSpan.Zero
         };
+
     });
 
-// ================= AUTHORIZATION (GLOBAL) =================
-builder.Services.AddAuthorization(options =>
-{
-    options.FallbackPolicy = new AuthorizationPolicyBuilder()
-        .RequireAuthenticatedUser()
-        .Build();
-});
 
 // ================= APPLICATION SERVICES =================
 builder.Services.AddScoped<IAuthService, AuthService>();

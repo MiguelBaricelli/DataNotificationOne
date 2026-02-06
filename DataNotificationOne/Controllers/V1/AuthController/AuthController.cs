@@ -18,7 +18,6 @@ namespace DataNotificationOne.Controllers.V1.AuthController
         }
 
         [HttpPost("token")]
-        [AllowAnonymous]
         public IActionResult GetToken([FromHeader] string apiKey)
         {
 

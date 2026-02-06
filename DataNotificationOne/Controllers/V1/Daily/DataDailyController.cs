@@ -1,6 +1,7 @@
 ﻿using DataNotificationOne.Application;
 using DataNotificationOne.Application.Dtos;
 using DataNotificationOne.Application.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DataNotificationOne.Controllers.V1.Daily
@@ -24,6 +25,7 @@ namespace DataNotificationOne.Controllers.V1.Daily
         /// </summary>
         /// <param name="ativo">Símbolo do ativo (ex.: MSFT, AAPL, IBM)</param>
         /// <returns>Objeto FinanceSummaryDto com variância e status do ativo</returns>
+        [Authorize]
         [HttpGet("GetVariationAsset/{ativo}/{date}")]
         [ProducesResponseType(typeof(FinanceSummaryDto), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(FinanceSummaryDto), StatusCodes.Status400BadRequest)]
