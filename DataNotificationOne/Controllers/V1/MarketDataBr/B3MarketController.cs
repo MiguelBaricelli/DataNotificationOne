@@ -1,20 +1,22 @@
 ﻿using DataNotificationOne.Application.Interfaces;
 using DataNotificationOne.Domain.Models.BraApi;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DataNotificationOne.Controllers.V1.MarketDataBr
 {
     [ApiController]
     [Route("api/v1/[controller]")]
-    public class BrApiController : ControllerBase
+    public class B3MarketController : ControllerBase
     {
         public readonly IDataMarketBrazilService _dataMarketBrazilService;
 
-        public BrApiController(IDataMarketBrazilService dataMarketBrazilService)
+        public B3MarketController(IDataMarketBrazilService dataMarketBrazilService)
         {
             _dataMarketBrazilService = dataMarketBrazilService;
         }
 
+        //[Authorize]
         [HttpGet("GetMarketDataBr/{symbol}")]
         [ProducesResponseType(typeof(BrApiRequest), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(BrApiRequest), StatusCodes.Status400BadRequest)]

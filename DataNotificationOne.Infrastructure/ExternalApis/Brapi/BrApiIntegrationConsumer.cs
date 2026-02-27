@@ -1,40 +1,46 @@
 ﻿using DataNotificationOne.Domain.Models.BraApi;
 using DataNotificationOne.Domain.Interfaces.Infra;
 using System.Text.Json;
+using System.Runtime.InteropServices;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.Extensions.Logging;
 
 
 
 namespace DataNotificationOne.Infrastructure.ExternalApis.Brapi
 {
-    
+
     public class BrApiIntegrationConsumer : IBrApiIntegrationConsumer
     {
         private readonly HttpClient _httpClient;
+        private readonly ILogger<BrApiIntegrationConsumer> _logger;
 
-        public BrApiIntegrationConsumer(HttpClient httpClient)
+        public BrApiIntegrationConsumer(HttpClient httpClient, ILogger<BrApiIntegrationConsumer> logger)
         {
             _httpClient = httpClient;
+            _logger = logger;
         }
 
         public async Task<BrApiRequest> GetBrapiDataAsync(string symbol)
         {
-            var url = $"https://brapi.dev/api/quote/{symbol}";
-                      
+            try
+            {
+                var url = $"https://brapi.dev/api/quote/{symbol}";
+
 
                 var response = await _httpClient.GetAsync(url);
 
-                if (response == null)
-                {
-                    Console.WriteLine("Dados estão vindo nulos da api");
-                    throw new Exception("Dados estão vindo nulo da api");
+
+                if (!response.IsSuccessStatusCode) 
+                { 
+                    _logger.LogError("Falha ao consultar {Url}. Status: {StatusCode}", 
+                    url, response.StatusCode); 
+                    throw new ExternalApiException($"Erro ao consultar ativo {symbol}. Status: {response.StatusCode}"); 
                 }
 
-                response.EnsureSuccessStatusCode();
 
                 var json = await response.Content.ReadAsStringAsync();
 
-                if (json.Contains("Error Message"))
-                    throw new Exception("Ativo inválido ou não encontrado");
 
                 var options = new JsonSerializerOptions
                 {
@@ -51,9 +57,25 @@ namespace DataNotificationOne.Infrastructure.ExternalApis.Brapi
                     throw new Exception("Dados do json vieram nulos ou vazios");
                 }
 
-            
-            return data;
+
+                return data;
+            }
+            catch (HttpRequestException e)
+            {
+                throw new Exception("Erro inesperado na integração com o BrApi", e);
+            }
+            catch (JsonException ex)
+            {
+                _logger.LogError(ex, "Erro de parsing JSON para ativo {Symbol}", symbol); 
+                throw new ExternalApiException("Erro ao processar resposta da API", ex);
             }
         }
     }
+    public class ExternalApiException : Exception 
+    { 
+        public ExternalApiException(string message, Exception? inner = null) : base(message, inner) 
+        { } 
+    }
+}
+
 
