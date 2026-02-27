@@ -1,15 +1,29 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using DataNotificationOne.Application.Interfaces;
+using DataNotificationOne.Domain.Interfaces.Infra.Repository;
+using DataNotificationOne.Domain.Models.BraApi;
 
 namespace DataNotificationOne.Application.Services.DataMarketBrazil
 {
-    public class DataMarketBrazilService
+    public class DataMarketBrazilService : IDataMarketBrazilService
     {
-        public readonly BrApiRepository _brApiRepository;
-        public DataMarketBrazilService() {
+        public readonly IBrApiRepository _brApiRepository;
+        public DataMarketBrazilService(IBrApiRepository brApiRepository)
+        {
+            _brApiRepository = brApiRepository;
+        }
 
+        public async Task<BrApiRequest> GetAllBrApiDataAsync(string symbol)
+        {
+            if (string.IsNullOrEmpty(symbol))
+            {
+                return new BrApiRequest
+                {
+                    BraApiResults = new List<BrApiModel>(),
+                    RequestedAt = DateTime.UtcNow
+                };
+            }
+
+                return await _brApiRepository.GetBrApiDataAsync(symbol);
+        }
     }
 }

@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using DataNotificationOne.Application.Interfaces;
+using DataNotificationOne.Domain.Models.BraApi;
+using Microsoft.AspNetCore.Mvc;
 
 namespace DataNotificationOne.Controllers.V1.MarketDataBr
 {
@@ -6,6 +8,37 @@ namespace DataNotificationOne.Controllers.V1.MarketDataBr
     [Route("api/v1/[controller]")]
     public class BrApiController : ControllerBase
     {
+        public readonly IDataMarketBrazilService _dataMarketBrazilService;
 
+        public BrApiController(IDataMarketBrazilService dataMarketBrazilService)
+        {
+            _dataMarketBrazilService = dataMarketBrazilService;
+        }
+
+        [HttpGet("GetMarketDataBr/{symbol}")]
+        [ProducesResponseType(typeof(BrApiRequest), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(BrApiRequest), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(BrApiRequest), StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<BrApiRequest>> GetMarketDataBr(string symbol)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(symbol))
+                {
+                    return BadRequest("Passe o símbolo corretamente");
+                }
+                var brApiData = await _dataMarketBrazilService.GetAllBrApiDataAsync(symbol);
+
+                if (brApiData == null || brApiData.BraApiResults == null || brApiData.BraApiResults.Count <= 0)
+                {
+                    return NotFound("Dados não encontrados");
+                }
+                return Ok(brApiData);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Erro ao buscar os dados.", ex);
+            }
+        }
     }
 }

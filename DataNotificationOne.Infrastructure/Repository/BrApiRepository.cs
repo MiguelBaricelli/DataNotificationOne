@@ -1,4 +1,5 @@
 ﻿using DataNotificationOne.Domain.Interfaces.Infra;
+using DataNotificationOne.Domain.Interfaces.Infra.Repository;
 using DataNotificationOne.Domain.Models.BraApi;
 using System;
 using System.Collections.Generic;
@@ -8,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace DataNotificationOne.Infrastructure.Repository
 {
-    public class BrApiRepository
+    public class BrApiRepository : IBrApiRepository
     {
         public readonly IBrApiIntegrationConsumer _brApiIntegrationConsumer;
         public BrApiRepository(IBrApiIntegrationConsumer brApiIntegrationConsumer)

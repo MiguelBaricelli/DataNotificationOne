@@ -3,6 +3,7 @@ using DataNotificationOne.Domain.Interfaces.Infra;
 using System.Text.Json;
 
 
+
 namespace DataNotificationOne.Infrastructure.ExternalApis.Brapi
 {
     

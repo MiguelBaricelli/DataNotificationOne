@@ -2,13 +2,16 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace DataNotificationOne.Domain.Models.BraApi
 {
     public class BrApiRequest
     {
-        public required List<BrApiModel> BraApiModels { get; set; }
-        public required string RequestAt { get; set; }
+        [JsonPropertyName("results")]
+        public required List<BrApiModel> BraApiResults{ get; set; }
+        [JsonPropertyName("requestedAt")]
+        public required DateTime RequestedAt { get; set; }
     }
 }

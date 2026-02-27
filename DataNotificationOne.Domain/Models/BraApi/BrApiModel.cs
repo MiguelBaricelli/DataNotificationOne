@@ -19,15 +19,15 @@ namespace DataNotificationOne.Domain.Models.BraApi
         public required decimal regularMarketChange { get; set; }
         public required decimal regularMarketChangePercent { get; set; }
         public required string regularMarketTime { get; set; }
-        public required int marketCap { get; set; }
+        public required long? marketCap { get; set; }
         public required int regularMarketVolume { get; set; }
         public required decimal regularMarketPreviousClose { get; set; }
         public required decimal regularMarketOpen { get; set; }
         public required string fiftyTwoWeekRange { get; set; } 
         public required decimal fiftyTwoWeekLow { get; set; }
         public required decimal fiftyTwoWeekHigh { get; set; }
-        public required decimal priceEarnings { get; set; }
-        public required decimal earningsPerShare { get; set; }
+        public required decimal? priceEarnings { get; set; }
+        public required decimal? earningsPerShare { get; set; }
         public required string logourl { get; set; }
     }
 }
