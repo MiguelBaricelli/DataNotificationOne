@@ -23,11 +23,11 @@ namespace DataNotificationOne.Domain.Models.BraApi
         public required int regularMarketVolume { get; set; }
         public required decimal regularMarketPreviousClose { get; set; }
         public required decimal regularMarketOpen { get; set; }
-        public required string fiftyTwoWeekRange { get; set; } 
-        public required decimal fiftyTwoWeekLow { get; set; }
-        public required decimal fiftyTwoWeekHigh { get; set; }
-        public required decimal? priceEarnings { get; set; }
-        public required decimal? earningsPerShare { get; set; }
-        public required string logourl { get; set; }
+        public  string fiftyTwoWeekRange { get; set; } 
+        public decimal fiftyTwoWeekLow { get; set; }
+        public decimal fiftyTwoWeekHigh { get; set; }
+        public  decimal? priceEarnings { get; set; }
+        public  decimal? earningsPerShare { get; set; }
+        public string logourl { get; set; }
     }
 }

@@ -42,5 +42,32 @@ namespace DataNotificationOne.Controllers.V1.MarketDataBr
                 throw new Exception("Erro ao buscar os dados.", ex);
             }
         }
+
+        //[Authorize]
+        [HttpGet("GetRegularData/{symbol}")]
+        [ProducesResponseType(typeof(BrApiRequest), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(BrApiRequest), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(BrApiRequest), StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<BrApiRequest>> GetRegularDataAsync(string symbol)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(symbol))
+                {
+                    return BadRequest("Passe o símbolo corretamente");
+                }
+                var brApiData = await _dataMarketBrazilService.GetRegularDataAsset(symbol);
+
+                if (brApiData == null)
+                {
+                    return NotFound("Dados não encontrados");
+                }
+                return Ok(brApiData);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Erro ao buscar os dados.", ex);
+            }
+        }
     }
 }
