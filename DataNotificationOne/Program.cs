@@ -1,50 +1,141 @@
-using DataNotificationOne.Application;
 using DataNotificationOne.Application.Interfaces;
-using DataNotificationOne.Application.Services;
+using DataNotificationOne.Application.Services.Authorization;
+using DataNotificationOne.Application.Services.Daily;
 using DataNotificationOne.Application.Services.Email;
+using DataNotificationOne.Application.Services.EmailMessage;
+using DataNotificationOne.Application.Services.General;
+using DataNotificationOne.Application.Services.Overview;
+using DataNotificationOne.Application.Services.Weekly;
+using DataNotificationOne.Domain.Models.ApiClientSecurity;
 using DataNotificationOne.Infrastructure.DependencyInjection;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
+using System.Text;
 using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
-
+// ================= USER SECRETS =================
 builder.Configuration.AddUserSecrets<Program>();
 
-var getApiKey = builder.Configuration["ApiKeys:AlphaVantage"];
 
-if (string.IsNullOrEmpty(getApiKey))
+/*
+var apiKey = builder.Configuration["ApiKeys:KeyApiFinance"];
+
+if (string.IsNullOrEmpty(apiKey))
 {
-    Console.WriteLine("Chave da api Alpha Vantage não encontrada no User Secrets");
-    throw new ArgumentException("Chave da api Alpha Vantage não encontrada no User Secrets");
+    Console.WriteLine("Chave da api não encontrada no User Secrets");
+    throw new ArgumentException("Chave da api não encontrada no User Secrets");
+}
+*/
+
+
+// ================= API KEY (Alpha Vantage) =================
+var alphaVantageApiKey = builder.Configuration["ApiKeys:AlphaVantage"];
+
+if (string.IsNullOrEmpty(alphaVantageApiKey))
+{
+    Console.WriteLine("Chave da API Alpha Vantage não encontrada");
+    throw new ArgumentException("Chave da API Alpha Vantage não encontrada");
 }
 
-builder.Services.AddScoped<IFinanceSummaryVarianceService,FinanceSummaryVarianceService>();
-builder.Services.AddScoped<IWeeklyDataForConsultService,WeeklyDataForConsultService>();
+// ================= JWT SETTINGS =================
+builder.Services.Configure<JwtSettings>(
+    builder.Configuration.GetSection("Auth:Jwt")
+);
+
+var jwt = builder.Configuration.GetSection("Auth:Jwt");
+
+if (string.IsNullOrWhiteSpace(jwt["SecretKey"]))
+    throw new Exception("JWT SecretKey não configurada");
+
+// ================= AUTHENTICATION =================
+builder.Services
+    .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+
+            ValidIssuer = jwt["Issuer"],
+            ValidAudience = jwt["Audience"],
+            IssuerSigningKey = new SymmetricSecurityKey(
+                Encoding.UTF8.GetBytes(jwt["SecretKey"]!)
+            ),
+            ClockSkew = TimeSpan.Zero
+        };
+
+    });
+
+
+// ================= APPLICATION SERVICES =================
+builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IFinanceSummaryVarianceService, FinanceSummaryVarianceService>();
+builder.Services.AddScoped<IWeeklyDataForConsultService, WeeklyDataForConsultService>();
 builder.Services.AddScoped<IDataOverviewService, DataOverviewService>();
-builder.Services.AddScoped<IDailyConsultService, DailyConsultService>();
 builder.Services.AddScoped<IGeneralResponseService, GeneralResponseService>();
-builder.Services.AddScoped<IGenerateMessageDailyService,GenerateMessageDailyService>();
+builder.Services.AddScoped<IGenerateMessageDailyService, GenerateMessageDailyService>();
+builder.Services.AddScoped<IDailyConsultService, DailyConsultService>();
 builder.Services.AddScoped<IEmailExecutor, EmailExecutor>();
+builder.Services.AddScoped<GenerateMessageNotificationEmail>();
 
-
-
+// ================= INFRASTRUCTURE =================
 builder.Services.AddHttpClient();
-
 builder.Services.AddDependencyInjection();
-// Add services to the container.
 
+// ================= CONTROLLERS =================
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
-    {
-        options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
-    });
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+    options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter())
+);
 
+builder.Services.AddEndpointsApiExplorer();
+
+// ================= SWAGGER =================
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new OpenApiInfo
+    {
+        Title = "Notification API",
+        Version = "v1"
+    });
+
+    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Name = "Authorization",
+        Type = SecuritySchemeType.Http,
+        Scheme = "bearer",
+        BearerFormat = "JWT",
+        In = ParameterLocation.Header,
+        Description = "Informe apenas o token JWT"
+    });
+
+    c.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            Array.Empty<string>()
+        }
+    });
+});
+
+// ================= BUILD =================
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+// ================= PIPELINE =================
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -53,6 +144,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();

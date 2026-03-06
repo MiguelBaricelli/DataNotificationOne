@@ -8,7 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace DataNotificationOne.Application.Services
+namespace DataNotificationOne.Application.Services.General
 {
     public class GeneralResponseService : IGeneralResponseService
     {
@@ -104,7 +104,7 @@ namespace DataNotificationOne.Application.Services
 
         public async Task<GeneralResponseModel> GetGeneralData(string asset, DateTime date, FunctionAlphaVantageEnum func, int qtdNumber)
         {
-            if(qtdNumber <= 0 || qtdNumber > 100)
+            if (qtdNumber <= 0 || qtdNumber > 100)
                 qtdNumber = 100;
 
             var response = await _alphaVantageGeneralConsumer.TimeSeriesGeneralConsumer(asset, func);
@@ -127,7 +127,7 @@ namespace DataNotificationOne.Application.Services
             if (sourceSeries == null || sourceSeries.Count == 0)
                 throw new Exception("Nenhuma série temporal disponível na resposta.");
 
-            
+
             var general = new GeneralResponseModel();
 
             switch (func)

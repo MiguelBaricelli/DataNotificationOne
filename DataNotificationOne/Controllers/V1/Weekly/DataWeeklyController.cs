@@ -2,9 +2,10 @@
 using DataNotificationOne.Application.Interfaces;
 using DataNotificationOne.Application.Services;
 using DataNotificationOne.Domain.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace DataNotificationOne.Controllers.V1
+namespace DataNotificationOne.Controllers.V1.Weekly
 {
 
     [ApiController]
@@ -27,6 +28,7 @@ namespace DataNotificationOne.Controllers.V1
         /// </summary>
         /// <param name="ativo">Símbolo do ativo (ex.: MSFT, AAPL, IBM)</param>
         /// <returns>Lista FinanceDataModel com os dados das últimas 10 semanas</returns>
+        [Authorize]
         [HttpGet("Last10Days/{ativo}")]
         [ProducesResponseType(typeof(IEnumerable<FinanceDataModel>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]

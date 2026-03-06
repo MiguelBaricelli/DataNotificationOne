@@ -3,7 +3,7 @@ using DataNotificationOne.Domain.Interfaces.Infra;
 using DataNotificationOne.Domain.Models;
 using DataNotificationOne.Domain.Services;
 
-namespace DataNotificationOne.Application.Services
+namespace DataNotificationOne.Application.Services.Weekly
 {
     public class WeeklyDataForConsultService : IWeeklyDataForConsultService
     {

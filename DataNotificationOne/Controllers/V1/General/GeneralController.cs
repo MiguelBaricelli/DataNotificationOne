@@ -2,9 +2,10 @@
 using DataNotificationOne.Application.Services;
 using DataNotificationOne.Domain.Models;
 using DataNotificationOne.Domain.Models.Enums;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace DataNotificationOne.Controllers.V1
+namespace DataNotificationOne.Controllers.V1.General
 {
     [ApiController]
     [Route("api/v1")]
@@ -19,6 +20,7 @@ namespace DataNotificationOne.Controllers.V1
 
         }
 
+        [Authorize]
         [HttpGet("GetGeneral/{asset}/{date}/{function}")]
         [ProducesResponseType(typeof(FinanceDataModel), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(FinanceDataModel), StatusCodes.Status400BadRequest)]
@@ -50,6 +52,7 @@ namespace DataNotificationOne.Controllers.V1
             return Ok(response);
         }
 
+        [Authorize]
         [HttpGet("GetGeneralDataByQuantity/{asset}/{date}/{function}/{n}")]
         [ProducesResponseType(typeof(FinanceDataModel), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(FinanceDataModel), StatusCodes.Status400BadRequest)]

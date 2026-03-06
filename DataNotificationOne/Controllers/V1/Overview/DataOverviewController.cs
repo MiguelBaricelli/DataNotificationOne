@@ -2,9 +2,10 @@
 using DataNotificationOne.Application.Interfaces;
 using DataNotificationOne.Application.Services;
 using DataNotificationOne.Domain.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace DataNotificationOne.Controllers.V1
+namespace DataNotificationOne.Controllers.V1.Overview
 {
     [ApiController]
     [Route("api/v1/[controller]")]
@@ -19,6 +20,7 @@ namespace DataNotificationOne.Controllers.V1
 
         /// <summary>
         /// 
+        [Authorize]
         [HttpGet("GetOverviewData/{ativo}")]
         [ProducesResponseType(typeof(OverviewModel), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(OverviewModel), StatusCodes.Status400BadRequest)]
@@ -47,6 +49,7 @@ namespace DataNotificationOne.Controllers.V1
 
         /// <summary>
         /// 
+        [Authorize]
         [HttpGet("GetSummaryCompany/{ativo}")]
         [ProducesResponseType(typeof(SummaryCompanyOverviewDto), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(SummaryCompanyOverviewDto), StatusCodes.Status400BadRequest)]
