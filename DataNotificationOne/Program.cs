@@ -6,6 +6,7 @@ using DataNotificationOne.Application.Services.Email;
 using DataNotificationOne.Application.Services.EmailMessage;
 using DataNotificationOne.Application.Services.General;
 using DataNotificationOne.Application.Services.Overview;
+using DataNotificationOne.Application.Services.Redis;
 using DataNotificationOne.Application.Services.Weekly;
 using DataNotificationOne.Domain.Models.ApiClientSecurity;
 using DataNotificationOne.Infrastructure.DependencyInjection;
@@ -86,10 +87,11 @@ builder.Services.AddScoped<IDailyConsultService, DailyConsultService>();
 builder.Services.AddScoped<IEmailExecutor, EmailExecutor>();
 builder.Services.AddScoped<GenerateMessageNotificationEmail>();
 builder.Services.AddScoped<IDataMarketBrazilService, DataMarketBrazilService>();
+builder.Services.AddScoped<RedisTestService>();
 
 // ================= INFRASTRUCTURE =================
 builder.Services.AddHttpClient();
-builder.Services.AddDependencyInjection();
+builder.Services.AddDependencyInjection(builder.Configuration);
 
 // ================= CONTROLLERS =================
 builder.Services.AddControllers()
