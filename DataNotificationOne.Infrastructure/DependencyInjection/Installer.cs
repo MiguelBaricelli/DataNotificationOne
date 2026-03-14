@@ -26,6 +26,7 @@ namespace DataNotificationOne.Infrastructure.DependencyInjection
             services.AddScoped<ISendGridIntegration, SendGridIntegration>();
             services.AddScoped<IBrApiIntegrationConsumer, BrApiIntegrationConsumer>();
             services.AddScoped<IBrApiRepository, BrApiRepository>();
+            
 
             // Redis
             var connectionString = configuration.GetConnectionString("RedisConnection");

@@ -44,6 +44,33 @@ namespace DataNotificationOne.Controllers.V1.MarketDataBr
         }
 
         //[Authorize]
+        [HttpGet("GetListAssetsInfo/{symbol}")]
+        [ProducesResponseType(typeof(BrApiRequest), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(BrApiRequest), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(BrApiRequest), StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<List<BrApiModel>>> GetListAssetsInfo(string symbol)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(symbol))
+                {
+                    return BadRequest("Passe o símbolo corretamente");
+                }
+                var brApiData = await _dataMarketBrazilService.GetListAssetsInfoAsync(symbol);
+
+                if (brApiData == null || brApiData == null || brApiData.Count <= 0)
+                {
+                    return NotFound("Dados não encontrados");
+                }
+                return Ok(brApiData);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Erro ao buscar os dados.", ex);
+            }
+        }
+
+        //[Authorize]
         [HttpGet("GetRegularData/{symbol}")]
         [ProducesResponseType(typeof(BrApiRequest), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(BrApiRequest), StatusCodes.Status400BadRequest)]

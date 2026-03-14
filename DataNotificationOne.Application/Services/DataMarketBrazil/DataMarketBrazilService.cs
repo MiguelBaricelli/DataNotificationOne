@@ -1,6 +1,10 @@
 ﻿using DataNotificationOne.Application.Interfaces;
 using DataNotificationOne.Domain.Interfaces.Infra.Repository;
 using DataNotificationOne.Domain.Models.BraApi;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.CodeAnalysis;
+using System.Text;
+using System.Text.Json;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace DataNotificationOne.Application.Services.DataMarketBrazil
@@ -8,40 +12,34 @@ namespace DataNotificationOne.Application.Services.DataMarketBrazil
     public class DataMarketBrazilService : IDataMarketBrazilService
     {
         public readonly IBrApiRepository _brApiRepository;
-        public DataMarketBrazilService(IBrApiRepository brApiRepository)
+        public readonly ICacheRepository _cacheRepository;
+        public readonly ICacheValidator _cacheValidator;
+        public DataMarketBrazilService(IBrApiRepository brApiRepository, ICacheRepository cacheRepository, ICacheValidator cacheValidator)
         {
             _brApiRepository = brApiRepository;
+            _cacheRepository = cacheRepository;
+            _cacheValidator = cacheValidator;
         }
 
         public async Task<BrApiRequest> GetAllBrApiDataAsync(string symbol)
         {
-            if (string.IsNullOrEmpty(symbol))
-            {
-                return new BrApiRequest
-                {
-                    BraApiResults = new List<BrApiModel>(),
-                    RequestedAt = DateTime.UtcNow
-                };
-            }
+            var response = await _cacheValidator.CacheValidatorAsync(symbol, () => _brApiRepository.GetBrApiDataAsync(symbol));
+            
+            return response;
+        }
 
-            return await _brApiRepository.GetBrApiDataAsync(symbol);
+        public async Task<List<BrApiModel>> GetListAssetsInfoAsync(string symbol)
+        {
+            var response = await _cacheValidator.CacheValidatorAsync(symbol, () => _brApiRepository.GetBrApiDataAsync(symbol));
+
+            return response.BraApiResults;
         }
 
         //MINHA LÓGICA COM USO DE FOR ITERANDO PELA POSIÇÃO DO ARRAY (PEGAR UM OU MAIS DE UM ATIVO E RETORNAR DADOS APENAS DO CONTRATO)
         public async Task<List<BrApiRegularModel>> GetRegularDataAsset(string symbol)
         {
-            if (string.IsNullOrEmpty(symbol))
-            {
-                return new List<BrApiRegularModel>();
 
-            }
-
-            var response = await _brApiRepository.GetBrApiDataAsync(symbol);
-
-            if (response == null || response.BraApiResults.Count <= 0)
-            {
-                return new List<BrApiRegularModel>();
-            }
+            var response = await _cacheValidator.CacheValidatorAsync(symbol, () => _brApiRepository.GetBrApiDataAsync(symbol));
 
             var listMessage = new List<BrApiRegularModel>();
 
@@ -75,13 +73,8 @@ namespace DataNotificationOne.Application.Services.DataMarketBrazil
         //IA, UTILIZA LINQ .SELECT PARA CONSULTA DE LISTA.
         public async Task<List<BrApiRegularModel>> GetRegularDataAssetTEST(string symbol)
         {
-            if (string.IsNullOrWhiteSpace(symbol))
-                return new List<BrApiRegularModel>();
 
-            var response = await _brApiRepository.GetBrApiDataAsync(symbol);
-
-            if (response?.BraApiResults == null || !response.BraApiResults.Any())
-                return new List<BrApiRegularModel>();
+            var response = await _cacheValidator.CacheValidatorAsync(symbol, () => _brApiRepository.GetBrApiDataAsync(symbol));
 
             var resultList = response.BraApiResults
                 .Select(result => new BrApiRegularModel
@@ -106,6 +99,29 @@ namespace DataNotificationOne.Application.Services.DataMarketBrazil
                 .ToList();
 
             return resultList;
+        }
+
+        public async Task<BrApiRequest> GetRequestBrApiAsync(string symbol)
+        {
+            {
+                if (string.IsNullOrWhiteSpace(symbol))
+                {
+                    return new BrApiRequest
+                    {
+                        BraApiResults = new List<BrApiModel>(),
+                        RequestedAt = DateTime.UtcNow
+                    };
+                }
+
+                var response = await _brApiRepository.GetBrApiDataAsync(symbol);
+
+                if(response == null)
+                {
+                    throw new Exception("Nenhum dado encontrado");
+                }
+
+                return response;
+            }
         }
     }
 }

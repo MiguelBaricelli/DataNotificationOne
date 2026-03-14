@@ -49,7 +49,7 @@ namespace DataNotificationOne.Application.Services.Weekly
             if (!request.WeeklyTimeSeries.TryGetValue(dateKey, out var weeklyData))
                 throw new Exception($"Nenhum dado foi encontrado para data {dateKey}");
 
-            // 🔹 Retorna apenas a semana solicitada dentro de um novo objeto
+            // Retorna apenas a semana solicitada dentro de um novo objeto
             return new WeeklyTimeSeriesModel
             {
                 WeeklyTimeSeries = new Dictionary<string, AlphaVantageDailyDto>

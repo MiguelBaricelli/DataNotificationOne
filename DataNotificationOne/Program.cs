@@ -88,6 +88,7 @@ builder.Services.AddScoped<IEmailExecutor, EmailExecutor>();
 builder.Services.AddScoped<GenerateMessageNotificationEmail>();
 builder.Services.AddScoped<IDataMarketBrazilService, DataMarketBrazilService>();
 builder.Services.AddScoped<RedisTestService>();
+builder.Services.AddScoped<ICacheValidator, CacheValidator>();
 
 // ================= INFRASTRUCTURE =================
 builder.Services.AddHttpClient();
