@@ -27,7 +27,8 @@ A API segue os princípios da **Clean Architecture**, garantindo:
 - Facilidade de manutenção  
 - Testabilidade  
 - Baixo acoplamento  
-- Escalabilidade  
+- Escalabilidade
+- Sistema de Caching com REDIS
 
 ---
 
