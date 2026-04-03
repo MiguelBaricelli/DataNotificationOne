@@ -1,6 +1,7 @@
 using DataNotificationOne.Application.Interfaces;
 using DataNotificationOne.Application.Services.Authorization;
 using DataNotificationOne.Application.Services.Daily;
+using DataNotificationOne.Application.Services.DataMarketBrazil;
 using DataNotificationOne.Application.Services.Email;
 using DataNotificationOne.Application.Services.EmailMessage;
 using DataNotificationOne.Application.Services.General;
@@ -84,6 +85,7 @@ builder.Services.AddScoped<IGenerateMessageDailyService, GenerateMessageDailySer
 builder.Services.AddScoped<IDailyConsultService, DailyConsultService>();
 builder.Services.AddScoped<IEmailExecutor, EmailExecutor>();
 builder.Services.AddScoped<GenerateMessageNotificationEmail>();
+builder.Services.AddScoped<IDataMarketBrazilService, DataMarketBrazilService>();
 
 // ================= INFRASTRUCTURE =================
 builder.Services.AddHttpClient();
